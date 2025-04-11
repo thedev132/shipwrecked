@@ -5,6 +5,12 @@ import Image from "next/image";
 
 export default function Background() {
   const [scrollPercent, setScrollPercent] = useState(0);
+  const [clientDimensions, setClientDimensions] = useState({
+    clientWidth: 0,
+    clientHeight: 0,
+  });
+
+  const { clientWidth, clientHeight } = clientDimensions;
 
   useEffect(() => {
     const handleScroll = (e: Event) => {
@@ -13,28 +19,21 @@ export default function Background() {
       const clientHeight = document.documentElement.clientHeight;
       setScrollPercent(scrollTop / (scrollHeight - clientHeight));
     };
+
+    const handleResize = () => {
+      setClientDimensions({
+        clientWidth: window.innerWidth,
+        clientHeight: window.innerHeight,
+      });
+    };
+
     window.addEventListener("scroll", handleScroll);
+    window.addEventListener("resize", handleResize);
     return () => {
       window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleResize);
     };
-  });
-
-  console.log(scrollPercent);
-  // 0: 0% movement, 33% translate up, then translate right
-  const KEYFRAMES = [
-    {
-      step: 0,
-      transform: "translate(0, 0)",
-    },
-    {
-      step: 0.33,
-      transform: "translate(-50%, -50%)",
-    },
-    {
-      step: 1,
-      transform: "translate(0, 0)",
-    },
-  ];
+  }, []);
 
   return (
     <motion.div
@@ -44,48 +43,48 @@ export default function Background() {
         left: 0,
       }}
     >
-      <div className="grid grid-cols-2 fixed aspect-video place-center" style={{
-        height: '200vh',
-        // Clamp the bottom for scroll percent 5–15% and translate up
-        bottom: `-${Math.min(Math.max(scrollPercent - 0.05, 0) / 0.15 * 100, 100)}%`,
-
-        // Clamp the left for scroll percent 25–40% and translate right
-        left: `-${Math.min(Math.max((scrollPercent - 0.30) / 0.15 * 100, 0), 100)}%`,
+      {/* map 15-25% to 0 opacity to 1 to 0 */}
+      <motion.div className={"fixed inset-0 z-50 bg-sky-500"} style={{
+        opacity:
+          scrollPercent < 0.15 ? 0 // less than 15% is invisible
+          : scrollPercent >= 0.15 && scrollPercent <= 0.2 ? (scrollPercent - 0.15) / 0.05 // transitions 0 to 1 on 15-20%
+          : scrollPercent > 0.2 && scrollPercent <= 0.22 ? 1 // is 1 on 20-22%
+          : scrollPercent > 0.22 && scrollPercent <= 0.25 ? 1 - (scrollPercent - 0.22) / 0.05 // transitions 1 to 0 on 22-25%
+          : 0, // greater than 25% is invisible
       }}>
-        <div className="h-screen aspect-video relative flex items-center justify-center">
-          <img src="/shore.png" alt="" className="h-screen aspect-video" style={{
-            maxWidth: "unset",
-          }} />
 
-          <div className="absolute top-0 left-0 h-screen aspect-video flex flex-col items-center justify-center z-10">
-            <h1 className="text-6xl font-bold text-white bg-slate-500 p-4">
-              Shipwrecked
-            </h1>
-            <p className="text-xl text-white p-3 bg-blue-500">
-              August 8-11
-            </p>
-          </div>
+      </motion.div>
+      {scrollPercent < 0.21 && <div className="flex flex-col items-center fixed z-10" style={{
+        // Clamp the bottom for scroll percent 5–15% and translate up
+        bottom: `-${Math.min(Math.max(scrollPercent, 0) / 0.10 * 100, 100)}%`,
+      }}>
+        <div className="h-screen aspect-video" style={{
+        }}>
+          <div
+            className="h-screen aspect-video"
+            style={{
+              backgroundImage: `url('/shore.png')`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
+          ></div>
         </div>
-        <div className="h-screen aspect-video relative">
-          <img src="/hut.png" alt="" className="h-screen aspect-video" />
+        <div className="h-screen aspect-video relative" style={{
+          backgroundImage: `url('/sand.png')`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}>
         </div>
-        <div className="h-screen aspect-video relative">
-          <img src="/sand.png" alt="" className="h-screen aspect-video" />
+      </div>}
+      {scrollPercent >= 0.21 && <div className="fixed inset-0 z-0">
+        <motion.div className="h-screen aspect-video" style={{
+          backgroundImage: `url('/hut.png')`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}>
 
-          <div className="absolute top-0 left-0 h-screen aspect-video flex flex-col items-center justify-center z-10">
-            <h1 className="text-6xl font-bold text-white bg-slate-500 p-4">
-              something washes up on the shore
-            </h1>
-            <p className="text-xl text-white p-3 bg-blue-500">
-              wowow lots of lore
-            </p>
-        </div>
-        <div className="h-screen aspect-video relative">
-          <img src="/sand.png" alt="" className="h-screen aspect-video" />
-        </div>
-        </div>
-      </div>
+        </motion.div>
+      </div>}
     </motion.div>
-
   )
 }

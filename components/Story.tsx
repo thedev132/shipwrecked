@@ -3,6 +3,7 @@ import { motion, useMotionValue, animate } from "motion/react";
 import { createContext, useEffect, useState } from "react";
 import Shore from "./Shore";
 import Info from "./Info";
+import Waves from "./Waves";
 
 export const ScrollProgressContext = createContext<[number, (n: number) => void]>([0, () => {}]);
 
@@ -63,7 +64,7 @@ export default function Story() {
         }}
       >
         {/* map 15-25% to 0 opacity to 1 to 0 */}
-        <motion.div className="fixed inset-0 z-50 bg-sky-500 pointer-events-none" style={{
+        <motion.div className="fixed inset-0 z-50 pointer-events-none" style={{
           opacity:
             scrollPercent < 0.15 ? 0 // less than 15% is invisible
             : scrollPercent >= 0.15 && scrollPercent <= 0.2 ? (scrollPercent - 0.15) / 0.05 // transitions 0 to 1 on 15-20%
@@ -73,8 +74,9 @@ export default function Story() {
         }} />
 
         <div className="">
-          {scrollPercent < 0.21 && <Shore />}
-          {scrollPercent >= 0.21 && <Info /> }
+          {scrollPercent < (0.21 + (0.45-0.21)/2) && <Shore />}
+          {(scrollPercent >= 0.21 && scrollPercent < 0.45) && <Waves /> }
+          {scrollPercent >= (0.45 - (0.45-0.21)/2) && <Info /> }
         </div>
       </motion.div>
     </ScrollProgressContext.Provider>

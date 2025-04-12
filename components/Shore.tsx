@@ -40,7 +40,9 @@ export default function Shore() {
             }}>What&apos;s Shipwrecked?</button>
             <button className="absolute bottom-20 right-10 text-6xl" onClick={() => {
               scrollToPercent(0);
-            }}>⬇️</button>
+            }}>
+              <img src="/back-arrow.png" alt="arrow" className="w-20 h-20 rotate-270" />
+            </button>
           </div>
         </div>
       </div>

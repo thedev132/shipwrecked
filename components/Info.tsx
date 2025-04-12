@@ -22,9 +22,11 @@ export default function Info() {
             <button className="mt-3 bg-sky-400 rounded p-4">How wonderful!</button>
           </div>
 
-          <button className="md:hidden absolute bottom-20 right-10 text-6xl" onClick={() => {
+          <button className="md:hidden absolute top-5 bottom-auto left- text-6xl" onClick={() => {
             scrollToPercent(0.15);
-          }}>⬅️</button>
+          }}>
+            <img src="/back-arrow.png" alt="arrow" className="w-20 h-20" />
+          </button>
         </div>
         
       </div>

@@ -1,0 +1,14 @@
+[
+    {
+        "name": "test",
+        "path": "@/md/test.mdx"
+    },
+    {
+        "name": "test2",
+        "path": "@/md/test2.mdx"
+    },
+    {
+        "name": "test3",
+        "path": "@/md/test3.mdx"
+    }
+]

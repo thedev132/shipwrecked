@@ -1,18 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Poppins } from "next/font/google";
 import { usePathname } from "next/navigation";
 import info from "@/app/info/info.json";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const poppins = Poppins({
+  variable: "--font-poppins",
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"], // Adjust weights as needed
 });
 
 export default function MDInfoLayout({
@@ -21,12 +17,10 @@ export default function MDInfoLayout({
   children: React.ReactNode;
 }) {
   // Get current pathname to determine active link
-  const pathname = usePathname?.() || "";
+  const pathname = typeof window !== "undefined" ? usePathname() || "" : "";
   const currentId = pathname.split("/").pop();
 
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} font-sans`}>
         <div className="flex min-h-screen">
           {/* Left side menu */}
           <aside className="w-64 bg-sky-100 p-6 shadow-md">
@@ -40,15 +34,14 @@ export default function MDInfoLayout({
                 {info.map((item) => (
                   <li key={item.name}>
                     <Link
-                      href={`/info/${item.name}`}
-                      className={`block py-2 px-4 rounded transition ${
+                      href={`/info/${item.slug}`}
+                      className={`block py-2 px-4 rounded text-center transition ${
                         currentId === item.name
-                          ? "bg-sky-200 font-medium"
-                          : "hover:bg-sky-200"
+                          ? "bg-sky-400 font-medium" // Darker active background
+                          : "bg-sky-200 hover:bg-sky-300" // Slightly darker default and hover backgrounds
                       }`}
                     >
-                      {/* Capitalize first letter of name for display */}
-                      {item.name.charAt(0).toUpperCase() + item.name.slice(1)}
+                      {item.name}
                     </Link>
                   </li>
                 ))}
@@ -61,7 +54,5 @@ export default function MDInfoLayout({
             <div className="max-w-3xl mx-0">{children}</div>
           </main>
         </div>
-      </body>
-    </html>
   );
 }

@@ -1,14 +1,14 @@
 [
     {
-        "name": "test",
-        "path": "@/md/test.mdx"
+        "name": "❓FAQ",
+        "slug": "faq"
     },
     {
         "name": "test2",
-        "path": "@/md/test2.mdx"
+        "slug": "@/md/test2.mdx"
     },
     {
         "name": "test3",
-        "path": "@/md/test3.mdx"
+        "slug": "@/md/test3.mdx"
     }
 ]

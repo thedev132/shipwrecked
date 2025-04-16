@@ -1,0 +1,27 @@
+[
+  {
+    "name": "FAQ",
+    "slug": "faq",
+    "emoji": "❓"
+  },
+  {
+    "name": "The Bay",
+    "slug": "the-bay",
+    "emoji": "🏖️"
+  },
+  {
+    "name": "Go Viral",
+    "slug": "go-viral",
+    "emoji": "📈"
+  },
+  {
+    "name": "Travel Stipends",
+    "slug": "travel-stipends",
+    "emoji": "✈️"
+  },
+  {
+    "name": "For Parents",
+    "slug": "for-parents",
+    "emoji": "👪"
+  }
+]

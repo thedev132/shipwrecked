@@ -1,4 +1,4 @@
-import Story from "@/components/Story";
+import Story from "@/components/launch/Story";
 import { ReactLenis } from 'lenis/react'
 
 export default function Home() {

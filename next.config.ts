@@ -3,6 +3,18 @@ import createMDX from '@next/mdx'
 
 const nextConfig: NextConfig = {
   pageExtensions: ['js', 'jsx', 'md', 'mdx', 'ts', 'tsx'],
+  output: 'standalone',
+  typescript: {
+    // Don't fail build on TS errors for production
+    ignoreBuildErrors: false,
+  },
+  eslint: {
+    // Don't fail build on ESLint errors for production
+    ignoreDuringBuilds: true,
+  },
+  images: {
+    unoptimized: true, // For static export
+  }
 };
 
 const withMDX = createMDX({

@@ -14,7 +14,10 @@ const nextConfig: NextConfig = {
   },
   images: {
     unoptimized: true, // For static export
-  }
+  },
+  // Ensure Next.js listens on all network interfaces
+  hostname: '0.0.0.0',
+  port: process.env.PORT || 8080
 };
 
 const withMDX = createMDX({

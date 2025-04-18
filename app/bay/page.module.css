@@ -61,6 +61,21 @@
   background-color: #2563eb;
 }
 
+.toastButton {
+  padding: 0.75rem 1.5rem;
+  background-color: #10b981;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.toastButton:hover {
+  background-color: #059669;
+}
+
 .modalList {
   list-style-type: disc;
   margin-left: 1.5rem;

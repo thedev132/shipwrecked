@@ -3,10 +3,18 @@ import Link from 'next/link';
 import styles from './page.module.css';
 import ProgressBar from '@/components/common/ProgressBar';
 import Modal from '@/components/common/Modal';
+import Toast from '@/components/common/Toast';
 import { useState } from 'react';
 
 export default function BayPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toastType, setToastType] = useState<'success' | 'error' | 'info' | 'warning'>('info');
+
+  const showToast = (message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info') => {
+    setToastMessage(message);
+    setToastType(type);
+  };
 
   return (
     <div className={styles.container}>
@@ -49,6 +57,12 @@ export default function BayPage() {
         <Link href="/submit-project" className={styles.submitButton}>
           Submit Your Project
         </Link>
+        <button
+          className={styles.toastButton}
+          onClick={() => showToast('This is an example toast notification!', 'success')}
+        >
+          Show Toast Example
+        </button>
       </div>
 
       <Modal
@@ -66,6 +80,14 @@ export default function BayPage() {
           <li>Smooth animations</li>
         </ul>
       </Modal>
+
+      {toastMessage && (
+        <Toast
+          message={toastMessage}
+          type={toastType}
+          onClose={() => setToastMessage(null)}
+        />
+      )}
     </div>
   );
 } 

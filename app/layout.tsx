@@ -47,7 +47,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <Script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></Script>
+        <link rel="stylesheet" href="https://use.typekit.net/mfm5adk.css" />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${baloo.variable}`}>
         {children}

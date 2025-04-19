@@ -23,7 +23,7 @@ export default function Shore() {
         <div className="h-screen md:aspect-video">
           <div className="hidden md:flex w-screen h-screen md:p-40 flex-col justify-start">
             <div className="py-4 px-8 rounded w-fit">
-              <div className="text-7xl text-white font-bold uppercase">Shipwrecked</div>
+              <div className="text-7xl text-white font-bold uppercase tk-ohno-softie-variable">Shipwrecked</div>
               <div className="text-2xl font-bold uppercase p-3 bg-sky-400 w-fit bg-white">August 8-11</div>
               <div className="mt-6">
                 <div className="text-base italic bg-sky-400 p-2 w-fit">(keep scrolling!)</div>

@@ -12,15 +12,15 @@ export default function Shore() {
       // Clamp the bottom for scroll percent 5–15% and translate up
       bottom: `-${Math.min(Math.max(scrollPercent, 0) / 0.10 * 100, 100)}%`,
     }}>
-      <div className="h-screen w-screen">
-        <div
-          className="h-screen md:aspect-video"
-          style={{
-            backgroundImage: `url('/shore.png')`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        >
+      <div className="h-screen w-screen"
+        style={{
+          height: "200vh",
+          backgroundImage: `url('/shore.png')`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <div className="h-screen md:aspect-video">
           <div className="hidden md:flex w-screen h-screen md:p-40 flex-col justify-start">
             <div className="py-4 px-8 rounded w-fit">
               <div className="text-7xl text-white font-bold uppercase">Shipwrecked</div>
@@ -45,30 +45,32 @@ export default function Shore() {
             </button>
           </div>
         </div>
-      </div>
-      <div className="h-screen w-screen md:flex md:justify-center bg-slate-400 md:bg-[url('/sand.png')] md:bg-auto relative" style={{
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}>
-        <div className="hidden md:flex w-screen h-screen md:p-40 flex-col justify-end">
+        {/* <div className="hidden w-screen h-screen md:p-40 flex-col justify-end"
+          // style={{
+          //   backgroundImage: `url('/bottle.png')`,
+          //   backgroundSize: "cover",
+          //   backgroundPosition: "center",
+          // }}
+          >
           <div className="py-4 px-8 bg-white/30 rounded w-fit">
             <h1 className="text-6xl font-bold mb-4">Something washes up on <br /><span className="italic">the shore...</span></h1>
             <p className="text-xl italic">(scroll to continue)</p>
           </div>
-        </div>
-        <div className="md:hidden bg-amber-100 w-screen h-screen flex flex-col items-center justify-center p-8">
+        </div> */}
+        <div className="w-screen h-screen flex flex-col items-center justify-center p-8">
           <button onClick={() => {
               scrollToPercent(0.10);
             }}>
             <span className="sr-only">Go to next section</span>
-            <Image src="/bottle.png" alt="" width={690} height={403} className="h-[20vh] w-auto"  />
+            <Image src="/bottle.png" alt="" width={690} height={403} className="h-auto md:w-[50vw] w-[75vw]"  />
           </button>
           <div className="space-y-3 my-6">
-            <div className="size-1 rounded-full bg-black"></div>
-            <div className="size-1 rounded-full bg-black"></div>
-            <div className="size-1 rounded-full bg-black"></div>
+            <div className="size-2 rounded-full bg-[#3B2715]"></div>
+            <div className="size-2 rounded-full bg-[#3B2715]"></div>
+            <div className="size-2 rounded-full bg-[#3B2715]"></div>
           </div>
-          <h1 className="text-4xl font-bold mb-4 italic text-center">Something washes up on the shore...</h1>
+          <h1 className="text-5xl font-bold mb-4 italic text-center text-[#3B2715]">Something washes up on the shore...</h1>
+          <p className="text-xl italic text-center text-[#3B2715]">(Click the bottle or scroll to continue)</p>
         </div>
       </div>
     </motion.div>

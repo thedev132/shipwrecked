@@ -1,17 +1,17 @@
 @import "tailwindcss";
 
-.h1 {
+h1 {
   font-family: "ohno-softie-variable", sans-serif;
   font-variation-settings: "wght" 300;
 }
 
-.h2 {
+h2 {
   font-family: "Baloo Da 2", sans-serif;
   font-optical-sizing: auto;
   font-style: normal;
 }
 
-.p {
+p {
   font-family: "Poppins", sans-serif;
   font-optical-sizing: auto;
   font-style: normal;

@@ -54,7 +54,7 @@ export default function BayPage() {
         >
           Open Example Modal
         </button>
-        <Link href="/submit-project" className={styles.submitButton}>
+        <Link href="/submit" className={styles.submitButton}>
           Submit Your Project
         </Link>
         <button

@@ -21,10 +21,10 @@ export default function Shore() {
         }}
       >
         <div className="h-screen md:aspect-video">
-          <div className="hidden md:flex w-screen h-screen md:p-40 flex-col justify-start">
-            <div className="py-4 px-8 rounded w-fit">
-              <div className="text-7xl text-white font-bold uppercase tk-ohno-softie-variable">Shipwrecked</div>
-              <div className="text-2xl font-bold uppercase p-3 bg-sky-400 w-fit bg-white">August 8-11</div>
+          <div className="hidden md:flex w-screen h-screen md:px-30 md:py-20 flex-col justify-start">
+            <div className="px-0 py-0 rounded w-fit">
+              <Image src="/logo.png" width={0} height={0} alt="Shipwrecked Logo" className="w-[30vw] h-auto" />
+              <div className="text-2xl px-10 font-bold text-white uppercase p-3 w-fit">August 8-11</div>
               <div className="mt-6">
                 <div className="text-base italic bg-sky-400 p-2 w-fit">(keep scrolling!)</div>
               </div>
@@ -45,18 +45,6 @@ export default function Shore() {
             </button>
           </div>
         </div>
-        {/* <div className="hidden w-screen h-screen md:p-40 flex-col justify-end"
-          // style={{
-          //   backgroundImage: `url('/bottle.png')`,
-          //   backgroundSize: "cover",
-          //   backgroundPosition: "center",
-          // }}
-          >
-          <div className="py-4 px-8 bg-white/30 rounded w-fit">
-            <h1 className="text-6xl font-bold mb-4">Something washes up on <br /><span className="italic">the shore...</span></h1>
-            <p className="text-xl italic">(scroll to continue)</p>
-          </div>
-        </div> */}
         <div className="w-screen h-screen flex flex-col items-center justify-center p-8">
           <button onClick={() => {
               scrollToPercent(0.10);

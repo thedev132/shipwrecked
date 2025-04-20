@@ -42,7 +42,7 @@ export default function Story() {
   const scrollToPercent = (percent: number) => {
     animate(motionValue, percent, {
       type: "spring",
-      duration: 3,
+      duration: 5,
       ease: 'easeIn', // 'cubic-bezier(0.83, 0, 0.17, 1)'
       bounce: 0,
     });

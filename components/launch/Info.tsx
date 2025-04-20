@@ -17,7 +17,7 @@ export default function Info() {
       }}>
         <div className="w-screen h-screen flex flex-col items-start justify-center p-8 relative">
           <div className="bg-sky-200/30 p-6 rounded-md w-full max-w-4xl md:h-[70vh] backdrop-blur-md">
-            <h1 className="text-4xl md:text-6xl font-bold mb-4 text-black">About Shipwrecked</h1>
+            <h1 className="text-4xl md:text-6xl font-bold mb-4 text-black">What&apos;s Shipwrecked?</h1>
             <p className="text-base">This is more lore and information packed into the same package.</p>
             <button className="mt-3 bg-sky-400 rounded p-4">How wonderful!</button>
           </div>

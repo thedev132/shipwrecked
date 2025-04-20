@@ -21,28 +21,29 @@ export default function Shore() {
         }}
       >
         <div className="h-screen md:aspect-video">
-          <div className="hidden md:flex w-screen h-screen md:px-30 md:py-20 flex-col justify-start">
+          <div className="flex w-screen h-screen md:px-30 md:py-20 px-15 py-10 flex-col justify-start">
             <div className="px-0 py-0 rounded w-fit">
-              <Image src="/logo.png" width={0} height={0} alt="Shipwrecked Logo" className="w-[30vw] h-auto" />
-              <div className="text-2xl px-10 font-bold text-white uppercase p-3 w-fit">August 8-11</div>
-              <div className="mt-6">
-                <div className="text-base italic bg-sky-400 p-2 w-fit">(keep scrolling!)</div>
+              <Image src="/logo.png" width={0} height={0} alt="Shipwrecked Logo" className="md:w-110 w-80 h-auto translate-x-[-25px]" />
+              <div className="flex items-center">
+                <Image src="/calendar-icon.png" width={0} height={0} alt="Calendar Icon" className="h-[3em] w-auto py-auto"/>
+                <h2 className="md:text-3xl text-2xl font-bold text-white uppercase p-3 pl-1 w-fit text-outline-black">August 8 - 11, 2025</h2>
               </div>
-            </div>
-          </div>
-          <div className="md:hidden w-screen h-screen flex flex-col items-start justify-center p-8 relative">
-            <div className="translate-y-[-25vh]">
-              <div className="text-5xl font-bold uppercase">Shipwrecked</div>
-              <div className="text-2xl font-bold uppercase">August 8-11</div>
-            </div>
-            <button className="p-4 uppercase italic bg-sky-500 rounded-md" onClick={() => {
-              scrollToPercent(0.30);
-            }}>What&apos;s Shipwrecked?</button>
-            <button className="absolute bottom-20 right-10 text-6xl" onClick={() => {
-              scrollToPercent(0);
-            }}>
+              <div className="flex items-center">
+                <Image src="/location-icon.png" width={0} height={0} alt="Location Icon" className="h-[3em] w-auto py-auto"/>
+                <h2 className="md:text-3xl text-2xl font-bold text-white uppercase p-3 pl-1 w-fit text-outline-black">Cathleen Stone Island, Boston Harbor</h2>
+              </div>
+              <button className="p-4 uppercase italic bg-sky-500 rounded-md" onClick={() => {
+                  scrollToPercent(0.46);
+                }}>
+                What&apos;s Shipwrecked?
+              </button>
+              <p className="text-sm italic text-black py-2">(click here or scroll to continue)</p>
+              <button className="absolute md:bottom-[calc(100vh+30px)] bottom-[calc(100vh+20px)] right-10 text-6xl" onClick={() => {
+                scrollToPercent(0);
+              }}>
               <img src="/back-arrow.png" alt="arrow" className="w-20 h-20 rotate-270" />
             </button>
+            </div>
           </div>
         </div>
         <div className="w-screen h-screen flex flex-col items-center justify-center p-8">

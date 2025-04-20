@@ -26,16 +26,16 @@ const baloo = Baloo_Da_2({
 });
 
 export const metadata: Metadata = {
-  title: "ShipWrecked!",
-  description: "Join us for an unforgettable weekend of hacking and adventure at ShipWrecked!",
+  title: "Shipwrecked",
+  description: "Join us for an unforgettable four days of hacking and adventure at Shipwrecked!",
   openGraph: {
-    title: "ShipWrecked!",
-    description: "Join us for an unforgettable weekend of hacking and adventure at ShipWrecked!",
-    siteName: "ShipWrecked!",
+    title: "Shipwrecked",
+    description: "Join us for an unforgettable four days of hacking and adventure at Shipwrecked!",
+    siteName: "Shipwrecked",
   },
   twitter: {
-    title: "ShipWrecked!",
-    description: "Join us for an unforgettable weekend of hacking and adventure at ShipWrecked!",
+    title: "Shipwrecked",
+    description: "Join us for an unforgettable four days of hacking and adventure at Shipwrecked!",
   }
 };
 

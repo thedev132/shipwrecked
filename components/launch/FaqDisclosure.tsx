@@ -16,7 +16,7 @@ export default function FaqDisclosure() {
   };
 
   return (
-    <div className="bg-sand p-4 space-y-4">
+    <div className="p-4 space-y-4">
       {faqs.map((faq, index) => (
         <div key={index} className="not-last:border-b border-dark-brown">
           <button

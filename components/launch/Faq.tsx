@@ -26,7 +26,7 @@ export default function Faq() {
               <FaqDisclosure />
             </div>
             <div className="mt-4">
-              NOTE: You can find additional questions answered on the <Link className="link" href="/info/faq">Shipwrecked Information Docs</Link>.
+              NOTE: You can find additional questions answered on the <Link className="link" href="/info">Shipwrecked Information Docs</Link>.
             </div>
           </div>
 

@@ -1,17 +1,6 @@
 import type { Metadata } from "next";
-import { Baloo_Da_2, Geist, Geist_Mono, Poppins } from "next/font/google";
+import { Baloo_Da_2, Poppins } from "next/font/google";
 import "./globals.css";
-import Script from "next/script";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -49,7 +38,7 @@ export default function RootLayout({
       <head>
         <link rel="stylesheet" href="https://use.typekit.net/mfm5adk.css" />
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${baloo.variable}`}>
+      <body className={`${poppins.variable} ${baloo.variable}`}>
         {children}
       </body>
     </html>

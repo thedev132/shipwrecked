@@ -24,7 +24,7 @@ p {
   font-style: normal;
 }
 
-a {
+.link {
   color: #ffe600;
   text-decoration: underline;
 }

@@ -23,10 +23,10 @@ export default function Bay() {
                 Through The Bay, you'll earn an invitaiton to Shipwrecked. In The Bay you will spend 60 hours making projects with the goal of making them go viral.
             </p>
             <p className="text-base text-xl py-2">
-                What does going viral mean, you might wonder? Going viral means making a really polished project you are extremly proud of, which you then promote to get other people to check it out! You can find the criteria for virality <a href="https://shipwrecked.hackclub.com/info/go-viral">here</a>. Once you reach 60 hours & one of your projects has gone viral, you'll receive an invitation to Shipwrecked!.
+                What does going viral mean, you might wonder? Going viral means making a really polished project you are extremly proud of, which you then promote to get other people to check it out! You can find the criteria for virality <a href="https://shipwrecked.hackclub.com/info/go-viral" className="link">here</a>. Once you reach 60 hours & one of your projects has gone viral, you'll receive an invitation to Shipwrecked!.
             </p>
             <p className="text-base text-xl py-2">
-                Every week, you can meet up with your friends either in person or over <a href="https://pier.hackclub.com">The Pier</a> - our video game-like digital meeting space to work! You are welcome — and encouraged — to team up with a friend to make a project! Just note that if you are working in a group, you all must have log 60 hours respectively on <a href="https://hackatime.hackclub.com">Hackatime</a> towards your project.
+                Every week, you can meet up with your friends either in person or over <a href="https://pier.hackclub.com" className="link">The Pier</a> - our video game-like digital meeting space to work! You are welcome — and encouraged — to team up with a friend to make a project! Just note that if you are working in a group, you all must have log 60 hours respectively on <a href="https://hackatime.hackclub.com" className="link">Hackatime</a> towards your project.
             </p>
             <button className="mt-3 bg-sky-400 rounded p-4">I have more questions!</button>
           </div>

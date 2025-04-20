@@ -24,6 +24,11 @@ p {
   font-style: normal;
 }
 
+a {
+  color: #ffe600;
+  text-decoration: underline;
+}
+
 .text-outline-black {
   /* text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; */
   text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.8);

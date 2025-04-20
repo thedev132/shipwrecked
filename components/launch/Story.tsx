@@ -4,12 +4,20 @@ import { createContext, useEffect, useState } from "react";
 import Shore from "./Shore";
 import Info from "./Info";
 import Waves from "./Waves";
+import Bay from "./Bay";
+import Faq from "./Faq";
 
 export const ScrollProgressContext = createContext<[number, (n: number) => void]>([0, () => {}]);
 
 export default function Story() {
   const [scrollPercent, setScrollPercent] = useState(0);
   const motionValue = useMotionValue(scrollPercent);
+
+  const shoreEnd = 0.21;
+  const wavesEnd = 0.45;
+  const infoEnd = 0.55;
+  const transitionEnd = 0.80;
+  const bayEnd = 0.95;
 
   useEffect(() => {
     // Sync motion value to scrollPercent
@@ -74,9 +82,11 @@ export default function Story() {
         }} />
 
         <div className="">
-          {scrollPercent < (0.21 + (0.45-0.21)/2) && <Shore />}
-          {(scrollPercent >= 0.21 && scrollPercent < 0.45) && <Waves /> }
-          {scrollPercent >= (0.45 - (0.45-0.21)/2) && <Info /> }
+          {scrollPercent < (shoreEnd + (wavesEnd-shoreEnd)/2) && <Shore />}
+          {(scrollPercent >= shoreEnd && scrollPercent < wavesEnd) && <Waves start={shoreEnd} end={wavesEnd} /> }
+          {(scrollPercent >= (wavesEnd - (wavesEnd-shoreEnd)/2) && scrollPercent < infoEnd + (transitionEnd-infoEnd)/2) && <Info bayStart={transitionEnd} shoreEnd={shoreEnd}/> }
+          {(scrollPercent >= infoEnd && scrollPercent < transitionEnd) && <Waves start={infoEnd} end={transitionEnd} /> }
+          {(scrollPercent >= transitionEnd - (transitionEnd-infoEnd)/2) && <Bay /> }
         </div>
       </motion.div>
     </ScrollProgressContext.Provider>

@@ -110,3 +110,14 @@ export async function getUserByEmail(email: string): Promise<User | undefined> {
   const lookup = await slack.users.lookupByEmail({ email: email })
   return lookup.user;
 }
+
+export async function checkSlackUserExists(email: string): Promise<boolean> {
+  try {
+    await getUserByEmail(email);
+    return true;
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (_) {
+    return false;
+  }
+}

@@ -1,14 +1,15 @@
 import Tabs from "./Tabs";
+import Image from "next/image";
 
 export default function Sidebar() {
   return (
     <aside className="w-64 bg-slate-100 p-6 shadow-md ">
       <div className="mb-8">
-        <div className="flex gap-2 flex-nowrap">
-          <h1 className="text-2xl font-bold text-sky-800">Shipwrecked <br /><span className="text-sm">(as logo with alt tag)</span></h1>
+        <div className="flex gap-2 flex-nowrap items-center justify-center">
+           <Image src="/logo.png" width={0} height={0} alt="Shipwrecked Logo" className="md:w-110 w-80 h-auto" />
           
         </div>
-        <p className="text-base text-sky-600 mt-1">August 8-11</p>
+        <p className="text-xl text-sky-600 mt-1" style={{fontFamily: "var(--font-baloo)"}}>August 8-11</p>
       </div>
       <Tabs />
     </aside>

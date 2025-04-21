@@ -1,18 +1,18 @@
 'use client';
-import { motion, useMotionValue, animate } from "motion/react";
+import { motion } from "motion/react";
 import { useContext } from "react";
 import { ScrollProgressContext } from "./Story";
 
-export default function Waves() {
-  const [scrollPercent, scrollToPercent] = useContext(ScrollProgressContext);
+export default function Waves({ start, end }: { start: number, end: number }) {
+  const [scrollPercent] = useContext(ScrollProgressContext);
 
   const numFrames = 15;
 
-  const startScroll = 0.21;
-  const endScroll = 0.45;
+  const startScroll = start;
+  const endScroll = end;
 
   // eslint-disable-next-line @next/next/no-img-element
-  const halfFrames = Array.from({ length: numFrames }, (_, i) => <img key={i} className="absolute top-0 left-0 w-screen h-screen object-cover z-1000 transform scale-y-[-1]" id={`${i+1}`} src={`/waves/${i + 1}.png`} alt="" />);
+  const halfFrames = Array.from({ length: numFrames }, (_, i) => <img key={i} className="fixed top-0 left-0 w-screen h-screen object-cover z-1000 transform scale-y-[-1]" id={`${i+1}`} src={`/waves/${i + 1}.png`} alt="" />);
 
   const frames = [...halfFrames, ...halfFrames.slice().reverse()];
 

@@ -1,17 +1,6 @@
 import type { Metadata } from "next";
-import { Baloo_Da_2, Geist, Geist_Mono, Poppins } from "next/font/google";
+import { Baloo_Da_2, Poppins } from "next/font/google";
 import "./globals.css";
-import Script from "next/script";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -26,20 +15,17 @@ const baloo = Baloo_Da_2({
 });
 
 export const metadata: Metadata = {
-  title: "ShipWrecked!",
-  description:
-    "Join us for an unforgettable weekend of hacking and adventure at ShipWrecked!",
+  title: "Shipwrecked",
+  description: "Join us for an unforgettable four days of hacking and adventure at Shipwrecked!",
   openGraph: {
-    title: "ShipWrecked!",
-    description:
-      "Join us for an unforgettable weekend of hacking and adventure at ShipWrecked!",
-    siteName: "ShipWrecked!",
+    title: "Shipwrecked",
+    description: "Join us for an unforgettable four days of hacking and adventure at Shipwrecked!",
+    siteName: "Shipwrecked",
   },
   twitter: {
-    title: "ShipWrecked!",
-    description:
-      "Join us for an unforgettable weekend of hacking and adventure at ShipWrecked!",
-  },
+    title: "Shipwrecked",
+    description: "Join us for an unforgettable four days of hacking and adventure at Shipwrecked!",
+  }
 };
 
 export default function RootLayout({
@@ -50,11 +36,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <Script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></Script>
+        <link rel="stylesheet" href="https://use.typekit.net/mfm5adk.css" />
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${baloo.variable}`}
-      >
+      <body className={`${poppins.variable} ${baloo.variable}`}>
         {children}
       </body>
     </html>

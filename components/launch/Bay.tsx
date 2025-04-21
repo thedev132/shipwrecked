@@ -8,13 +8,19 @@ import TriggerButton from "./TriggerButton";
 
 // import { motion } from "motion/react";
 
-export default function Bay({ start, end }:{ start: number, end: number }) {
+export default function Bay({ start, end, previous, next }:{ start: number, end: number, previous: number, next: number }) {
   const [scrollPercent] = useContext(ScrollProgressContext);
 
-  const duration = end - start
-  const section1 = start + (duration * 1 / 3);
-  const section2 = start + (duration * 2 / 3);
-  const section3 = end;
+  const startWithWaveOffset = start + 0.075;
+  const endWithWaveOffset = end - 0.075;
+
+  const duration = endWithWaveOffset - startWithWaveOffset
+
+  const subsections = {
+    intro: { start: start, end: startWithWaveOffset + (duration * 1 / 3) },
+    viral: { start: startWithWaveOffset + (duration * 1 / 3), end: startWithWaveOffset + (duration * 2 / 3) },
+    teamwork: { start: startWithWaveOffset + (duration * 2 / 3), end: endWithWaveOffset },
+  }
   
   return (
     <div className="fixed inset-0 z-0">
@@ -28,7 +34,7 @@ export default function Bay({ start, end }:{ start: number, end: number }) {
             <h1 className="text-4xl md:text-6xl font-bold mb-4">The Bay</h1>
 
             <AnimatePresence>
-              {scrollPercent < section1 && (
+              {scrollPercent < subsections.intro.end && (
               <motion.p
                 key="bay-intro"
                 initial={{ opacity: 0 }}
@@ -40,7 +46,7 @@ export default function Bay({ start, end }:{ start: number, end: number }) {
               )}
 
               {/* 0.5 - 0.55 */}
-              {scrollPercent >= section1 && scrollPercent < section2 && (
+              {scrollPercent >= subsections.viral.start && scrollPercent < subsections.viral.end && (
               <motion.p
                 key="viral-criteria"
                 initial={{ opacity: 0 }}
@@ -52,7 +58,7 @@ export default function Bay({ start, end }:{ start: number, end: number }) {
               )}
 
               {/* 0.55 - 0.60 */}
-              {scrollPercent >= section2 && (
+              {scrollPercent >= subsections.teamwork.start && (
               <motion.p
                 key="teamwork"
                 initial={{ opacity: 0 }}
@@ -65,22 +71,22 @@ export default function Bay({ start, end }:{ start: number, end: number }) {
             </AnimatePresence>
           </div>
           <div className="mt-5">
-            {scrollPercent < section1 && (
+            {scrollPercent < subsections.intro.end && (
               <div className="flex gap-4">
-                <TriggerButton targetPercent={start - 0.2} backwards waves></TriggerButton>
-                <TriggerButton targetPercent={section2}>What is &quot;going viral?&quot;</TriggerButton>
+                <TriggerButton targetPercent={previous} backwards waves></TriggerButton>
+                <TriggerButton targetPercent={subsections.viral.start + 0.01}>What is &quot;going viral?&quot;</TriggerButton>
               </div>
             )}
-            {scrollPercent >= section1 && scrollPercent < section2 && (
+            {scrollPercent >= subsections.viral.start && scrollPercent < subsections.viral.end && (
               <div className="flex gap-4">
-                <TriggerButton targetPercent={section1} backwards></TriggerButton>
-                <TriggerButton targetPercent={section3}>How can I meet my team?</TriggerButton>
+                <TriggerButton targetPercent={startWithWaveOffset} backwards></TriggerButton>
+                <TriggerButton targetPercent={subsections.teamwork.start}>How can I meet my team?</TriggerButton>
               </div>
             )}
-            {scrollPercent >= section2 && (
+            {scrollPercent >= subsections.teamwork.start && (
               <div className="flex gap-4">
-                <TriggerButton targetPercent={section2} backwards></TriggerButton>
-                <TriggerButton targetPercent={end + 0.1} waves>I have more questions!</TriggerButton>
+                <TriggerButton targetPercent={subsections.viral.start} backwards></TriggerButton>
+                <TriggerButton targetPercent={next} waves>I have more questions!</TriggerButton>
               </div>
             )}
           </div>

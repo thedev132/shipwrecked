@@ -8,7 +8,7 @@ export default function FaqDisclosure() {
   const faqs = [
     { question: "Can I participate?", answer: "Anyone under 18 at the time of the event and who has completed The Bay is allowed to participate! Travel grants will be available to everyone who completes the program. Please contact us for any personalized questions." },
     { question: "Is this free to participate in?", answer: "Yes! Participation is entirely free—but only if you complete The Bay. Without completing The Bay, you won't be able to join us for Shipwrecked." },
-    { question: "My parents want more information.", answer: <>We are happy to answer any questions your parents may have. Please email: shipwrecked@hackclub.com. Also, please refer to the <Link href="/info/for-parents" className="text-blue-600 hover:text-blue-800 underline">parent's guide</Link> in our docs.</> },
+    { question: "My parents want more information.", answer: <>We are happy to answer any questions your parents may have. Please email: shipwrecked@hackclub.com. Also, please refer to the <Link href="/info/for-parents" className="text-blue-600 hover:text-blue-800 underline">parent&apos;s guide</Link> in our docs.</> },
     { question: "Who can I contact for more information?", answer: "If you have any questions, please email: shipwrecked@hackclub.com or join the #shipwrecked channel on the Hack Club Slack." }
   ];
 

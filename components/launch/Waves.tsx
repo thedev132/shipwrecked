@@ -2,20 +2,20 @@
 import { motion } from "motion/react";
 import { useContext, useMemo } from "react";
 import { ScrollProgressContext } from "./Story";
+import Image from "next/image";
 
-export default function Waves({ start, end }: { start: number, end: number }) {
+export default function Waves({ start, end }: { start: number | undefined, end: number | undefined }) {
   const [scrollPercent] = useContext(ScrollProgressContext);
 
   const numFrames = 10;
 
-  const startScroll = start;
-  const endScroll = end;
-
   // Memoize the frames to prevent recreating them on every render
   const frames = useMemo(() => {
     const halfFrames = Array.from({ length: numFrames }, (_, i) => (
-      <img 
-        key={i} 
+      <Image 
+        key={i}
+        width={1920}
+        height={1080}
         className="fixed top-0 left-0 w-screen h-screen object-cover z-1000 transform scale-y-[-1] pointer-events-none" 
         id={`${i+1}`} 
         src={`/waves/${i + 1}.png`} 
@@ -28,16 +28,19 @@ export default function Waves({ start, end }: { start: number, end: number }) {
 
   return (
     <motion.div className="fixed z-10 w-screen">
-      {/* map 15-25% to 0 opacity to 1 to 0 */}
-      <motion.div className="fixed inset-0 z-50 pointer-events-none" style={{
-        opacity:
-          scrollPercent < startScroll ? 0 // less than 15% is invisible
-            : scrollPercent >= startScroll && scrollPercent <= endScroll ? 1 // is 1 on 20-22%
-              : 0, // greater than 25% is invisible
-      }} />
-
-      <div className="">
-        {frames[Math.floor(((scrollPercent - startScroll) / (endScroll - startScroll)) * (numFrames * 2))]}
+      <div style={{
+        opacity: !start && !end ? 0 : 1
+      }}>
+        {frames.map((frame, index) => (
+          <div
+            key={index}
+            style={{
+              opacity: (!start || !end) ? 0 : (Math.floor(((scrollPercent - start) / (end - start)) * (numFrames * 2)) === index ? 1 : 0),
+            }}
+          >
+            {frame}
+          </div>
+        ))}
       </div>
     </motion.div>
   )

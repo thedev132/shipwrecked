@@ -5,8 +5,14 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
 
 
+const adapter = {
+  ...PrismaAdapter(prisma),
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
+  linkAccount: ({ ok, state, ...data }: any) => prisma.account.create({ data })
+}
+
 export const opts = {
-  adapter: PrismaAdapter(prisma),
+  adapter: adapter,
   providers: [
     SlackProvider({
       clientId: process.env.SLACK_CLIENT_ID ?? "",

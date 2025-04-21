@@ -19,7 +19,7 @@ export default function Bay({ start, end }:{ start: number, end: number }) {
   return (
     <div className="fixed inset-0 z-0">
       <div className="h-screen aspect-video flex" style={{
-        backgroundImage: `url('/bay.png')`,
+        backgroundImage: `url('/bay.jpg')`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}>

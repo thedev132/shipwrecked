@@ -37,18 +37,18 @@ export default function Home() {
   const imageUrls = [
     // Wave images
     ...Array.from({ length: 10 }, (_, i) => `/waves/${i + 1}.png`),
-    // Other large PNG files
+    // Other large files
     '/signatures.png',
     '/Key-personel.png',
-    '/shore.png',
+    '/shore.jpg',
     '/logo.png',
-    '/hut.png',
+    '/hut.jpg',
     '/location-icon.png',
-    '/faq.png',
+    '/faq.jpg',
     '/bottlebig.png',
     '/calendar-icon.png',
     '/bottle.png',
-    '/bay.png',
+    '/bay.jpg',
     '/back-arrow.png'
   ];
 

@@ -14,7 +14,7 @@ export default function Info({ bayStart, shoreEnd }: { bayStart: number, shoreEn
   return (
     <div className="fixed inset-0 z-0">
       <div className="h-screen aspect-video flex " style={{
-        backgroundImage: `url('/hut.png')`,
+        backgroundImage: `url('/hut.jpg')`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}>

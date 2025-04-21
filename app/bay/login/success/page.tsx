@@ -1,10 +1,5 @@
 import { opts } from "@/app/api/auth/[...nextauth]/route";
-import {
-  checkHackatimeUserExists,
-  fetchRecentHeartbeat,
-} from "@/lib/hackatime";
-import { prisma } from "@/lib/prisma";
-import { getUserByEmail } from "@/lib/slack";
+import { getRecords } from "@/lib/airtable";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 
@@ -13,28 +8,28 @@ export default async function Page() {
 
   if (!session || !session?.user) redirect("/bay/login");
 
-  let slackUser;
+  // FIXME: Flow Incomplete
+  // if (!(await checkSlackUserExists(session!.user!.email!)))
+  // redirect("/bay/intro/slack");
 
-  try {
-    slackUser = await getUserByEmail(session!.user!.email!);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (_) {
-    redirect("/bay/intro/slack");
-  }
-
-  const hackatimeUser = await checkHackatimeUserExists(slackUser!.id! + "a");
-  if (!hackatimeUser) redirect("/bay/intro/hackatime");
+  // FIXME: Flow Incomplete
+  // const slackUser = await getUserByEmail(session!.user!.email!);
+  // const hackatimeUser = await checkHackatimeUserExists(slackUser!.id!);
+  // if (!hackatimeUser) redirect("/bay/intro/hackatime");
 
   // TODO: Recent Heartbeat Endpoint not Available
+  // FIXME: Flow Incomplete
   // const hackatimeHeartbeat = await fetchRecentHeartbeat(slackUser!.id!)
   // if (!hackatimeHeartbeat.has_heartbeat) redirect("/bay/intro/hackatime");
 
-  const record = await prisma.registration.findUnique({
-    where: { email: session!.user!.email! },
+  const records = await getRecords("Users", {
+    filterByFormula: `Email = '${session!.user!.email!}'`,
+    sort: [],
+    maxRecords: 1,
   });
-  if (!record) redirect("/bay/intro/register");
+  if (records.length < 1) redirect("/bay/intro/register");
 
-  redirect("/bay");
+  redirect("/bay/intro/register/complete");
 
   return (
     <div className="flex justify-center items-center h-[100vh]">

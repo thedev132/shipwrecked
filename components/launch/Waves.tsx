@@ -16,7 +16,7 @@ export default function Waves({ start, end }: { start: number, end: number }) {
     const halfFrames = Array.from({ length: numFrames }, (_, i) => (
       <img 
         key={i} 
-        className="fixed top-0 left-0 w-screen h-screen object-cover z-1000 transform scale-y-[-1]" 
+        className="fixed top-0 left-0 w-screen h-screen object-cover z-1000 transform scale-y-[-1] pointer-events-none" 
         id={`${i+1}`} 
         src={`/waves/${i + 1}.png`} 
         alt="" 

@@ -2,15 +2,22 @@
 
 import Image from "next/image";
 import { redirect } from "next/navigation";
-import { useActionState } from "react";
-import { revalidate } from "./actions";
+import { useEffect, useState } from "react";
 
 export default function Prompt({ email }: { email: string }) {
-  const [status, revalidateAction] = useActionState(revalidate, false);
+  // TODO: Send Slack Invite via Toriel
+
+  const [slackStatus, setSlackStatus] = useState(false);
 
   function recheck() {
-    revalidateAction(email);
+    fetch(`/api/intro/slack?q=${email}`)
+      .then((d) => d.json())
+      .then((d) => setSlackStatus(d["exists"]));
+
+    if (!slackStatus) setTimeout(recheck, 5000);
   }
+
+  useEffect(recheck, []);
 
   function next() {
     redirect("/bay/login/success");
@@ -40,10 +47,10 @@ export default function Prompt({ email }: { email: string }) {
         <div className="flex justify-center">
           <h2 className="text-center font-semibold text-2xl mr-2">
             <img
-              src={`/mark-${status ? "check" : "cross"}.svg`}
+              src={`/mark-${slackStatus ? "check" : "cross"}.svg`}
               className="w-10 inline"
             />{" "}
-            {!status ? "No" : ""} Slack Account Found!
+            {!slackStatus ? "No" : ""} Slack Account Found!
           </h2>
           <button
             className="ml-2 py-2 md:px-4 px-2 uppercase italic bg-dark-blue/60 text-sand border border-sand whitespace-nowrap text-xs md:text-base transition hover:border-yellow backdrop-blur-sm rounded-full cursor-pointer"
@@ -53,25 +60,24 @@ export default function Prompt({ email }: { email: string }) {
           </button>
         </div>
         {/* Continue */}
-        {status && (
-          <div className="flex justify-end">
-            <button
-              className="py-2 md:px-4 px-2 uppercase italic bg-dark-blue/60 text-sand border border-sand whitespace-nowrap text-xs md:text-base transition hover:border-yellow backdrop-blur-sm rounded-full cursor-pointer"
-              onClick={next}
-            >
-              <span className="flex items-center gap-3 flex-nowrap">
-                Next!
-                <Image
-                  src="/back-arrow.png"
-                  width={24}
-                  height={24}
-                  alt="next"
-                  className="w-8 h-8 -scale-x-100"
-                />
-              </span>
-            </button>
-          </div>
-        )}
+        <div className="flex justify-end mt-2">
+          <button
+            className="py-2 md:px-4 px-2 uppercase disabled:bg-dark-blue/20 bg-dark-blue/60 text-sand border border-sand whitespace-nowrap text-xs md:text-base transition hover:not-disabled:border-yellow backdrop-blur-sm rounded-full cursor-pointer"
+            onClick={next}
+            disabled={!slackStatus}
+          >
+            <span className="flex items-center gap-3 flex-nowrap">
+              Next!
+              <Image
+                src="/back-arrow.png"
+                width={24}
+                height={24}
+                alt="next"
+                className="w-8 h-8 -scale-x-100"
+              />
+            </span>
+          </button>
+        </div>
       </div>
     </>
   );

@@ -24,7 +24,7 @@ export default function Shore() {
         <div className="h-screen md:aspect-video">
           <div className="flex w-screen h-screen md:px-30 md:py-20 px-15 py-10 flex-col justify-start">
             <div className="px-0 py-0 rounded w-fit">
-              <Image src="/logo.png" width={0} height={0} alt="Shipwrecked" className="md:w-110 w-80 h-auto translate-x-[-25px]" />
+              <Image src="/logo.svg" width={0} height={0} alt="Shipwrecked" className="md:w-100 w-70 p-5 h-auto translate-x-[-25px]" />
               <div className="flex items-center">
                 <Image src="/calendar-icon.png" width={0} height={0} alt="Calendar Icon" className="h-[3em] w-auto py-auto"/>
                 <h2 className="md:text-3xl text-2xl font-bold text-white uppercase p-3 pl-1 w-fit text-outline-dark-blue">August 8 - 11, 2025</h2>

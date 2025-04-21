@@ -33,10 +33,10 @@ export default function Shore() {
                 <Image src="/location-icon.png" width={0} height={0} alt="Location Icon" className="h-[3em] w-auto py-auto"/>
                 <h2 className="md:text-3xl text-2xl font-bold text-white uppercase p-3 pl-1 w-fit text-outline-dark-blue">Cathleen Stone Island, Boston Harbor</h2>
               </div>
-              <TriggerButton targetPercent={0.46}>What&apos;s Shipwrecked?</TriggerButton>
+              <TriggerButton targetPercent={0.46} waves>What&apos;s Shipwrecked?</TriggerButton>
               <p className="text-sm italic text-sand py-2">(click here or scroll to continue)</p>
               <button className="absolute md:bottom-[calc(100vh+30px)] bottom-[calc(100vh+20px)] right-10 text-6xl" onClick={() => {
-                scrollToPercent(0, 0.1);
+                scrollToPercent(0);
               }}>
                 <Image src="/back-arrow.png" width={80} height={80} alt="arrow" className="w-20 h-20 rotate-270" />
               </button>

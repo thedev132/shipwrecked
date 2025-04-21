@@ -40,14 +40,14 @@ export default function Info({ bayStart, shoreEnd }: { bayStart: number, shoreEn
           <div className="mt-5">
             {scrollPercent < 0.5 && (
               <div className="flex gap-4">
-                <TriggerButton targetPercent={0.2} backwards></TriggerButton>
+                <TriggerButton targetPercent={0.2} backwards waves></TriggerButton>
                 <TriggerButton targetPercent={0.51}>What will we do on the island?</TriggerButton>
               </div>
             )}
             {scrollPercent > 0.5 && (
               <div className="flex gap-4">
                 <TriggerButton targetPercent={0.46} backwards></TriggerButton>
-                <TriggerButton targetPercent={bayStart}>How do I get invited?</TriggerButton>
+                <TriggerButton targetPercent={bayStart} waves>How do I get invited?</TriggerButton>
               </div>
             )}
           </div>

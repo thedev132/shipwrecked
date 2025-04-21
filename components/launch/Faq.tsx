@@ -8,7 +8,7 @@ import Link from "next/link";
 
 // import { motion } from "motion/react";
 
-export default function Faq() {
+export default function Faq( { bayEnd }: { bayEnd: number }) {
   const [, scrollToPercent] = useContext(ScrollProgressContext);
   
   return (
@@ -30,8 +30,8 @@ export default function Faq() {
             </div>
           </div>
 
-          <button className="md:hidden absolute top-5 bottom-auto left- text-6xl" onClick={() => {
-            scrollToPercent(0.15);
+          <button className="absolute top-5 bottom-auto left-5 text-6xl" onClick={() => {
+            scrollToPercent(bayEnd);
           }}>
             <Image src="/back-arrow.png" alt="arrow" width={80} height={80} className="w-20 h-20" />
           </button>

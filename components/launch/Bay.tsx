@@ -67,7 +67,7 @@ export default function Bay({ start, end }:{ start: number, end: number }) {
           <div className="mt-5">
             {scrollPercent < section1 && (
               <div className="flex gap-4">
-                <TriggerButton targetPercent={start - 0.2} backwards></TriggerButton>
+                <TriggerButton targetPercent={start - 0.2} backwards waves></TriggerButton>
                 <TriggerButton targetPercent={section2}>What is &quot;going viral?&quot;</TriggerButton>
               </div>
             )}
@@ -80,7 +80,7 @@ export default function Bay({ start, end }:{ start: number, end: number }) {
             {scrollPercent >= section2 && (
               <div className="flex gap-4">
                 <TriggerButton targetPercent={section2} backwards></TriggerButton>
-                <TriggerButton targetPercent={end + 0.1}>I have more questions!</TriggerButton>
+                <TriggerButton targetPercent={end + 0.1} waves>I have more questions!</TriggerButton>
               </div>
             )}
           </div>

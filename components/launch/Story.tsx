@@ -90,7 +90,7 @@ export default function Story() {
           {(scrollPercent >= infoEnd && scrollPercent < waves2End) && <Waves start={infoEnd} end={waves2End} />}
           {(scrollPercent >= waves2End - (waves2End - infoEnd) / 2) && scrollPercent < bayEnd + (waves3End - bayEnd) / 2 && <Bay start={waves2End} end={bayEnd} />}
           {(scrollPercent >= bayEnd && scrollPercent < waves3End) && <Waves start={bayEnd} end={waves3End} />}
-          {(scrollPercent >= waves3End - (waves3End - bayEnd) / 2) && <Faq />}
+          {(scrollPercent >= waves3End - (waves3End - bayEnd) / 2) && <Faq bayEnd={bayEnd} />}
         </div>
       </motion.div>
     </ScrollProgressContext.Provider>

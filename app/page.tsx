@@ -39,7 +39,7 @@ export default function Home() {
     ...Array.from({ length: 10 }, (_, i) => `/waves/${i + 1}.png`),
     // Other large files
     '/signatures.png',
-    '/Key-personel.png',
+    '/Key-personel.jpg',
     '/shore.jpg',
     '/logo.png',
     '/hut.jpg',

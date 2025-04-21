@@ -14,7 +14,7 @@ export default function Faq( { bayEnd }: { bayEnd: number }) {
   return (
     <div className="fixed inset-0 z-0">
       <div className="h-screen w-screen aspect-video flex" style={{
-        backgroundImage: `url('/faq.png')`,
+        backgroundImage: `url('/faq.jpg')`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}>

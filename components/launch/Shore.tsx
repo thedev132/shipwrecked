@@ -16,7 +16,7 @@ export default function Shore() {
       <div className="h-screen w-screen"
         style={{
           height: "200vh",
-          backgroundImage: `url('/shore.png')`,
+          backgroundImage: `url('/shore.jpg')`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}

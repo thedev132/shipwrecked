@@ -6,7 +6,9 @@ export default function Sidebar({ setSidebarOpen }: { setSidebarOpen?: (open: bo
     <aside className="w-64 bg-slate-100 p-6 shadow-md min-h-screen">
       <div className="mb-8">
         <div className="flex gap-2 flex-nowrap items-center justify-center">
-           <Image src="/logo.png" width={0} height={0} alt="Shipwrecked Logo" className="md:w-110 w-80 h-auto" />
+          <a href="/info">
+            <Image src="/logo.png" width={0} height={0} alt="Shipwrecked Logo" className="md:w-110 w-80 h-auto" />
+          </a>
         </div>
         <p className="text-xl text-sky-600 mt-1" style={{fontFamily: "var(--font-baloo)"}}>August 8-11</p>
       </div>

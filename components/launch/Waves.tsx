@@ -1,20 +1,30 @@
 'use client';
 import { motion } from "motion/react";
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 import { ScrollProgressContext } from "./Story";
 
 export default function Waves({ start, end }: { start: number, end: number }) {
   const [scrollPercent] = useContext(ScrollProgressContext);
 
-  const numFrames = 15;
+  const numFrames = 10;
 
   const startScroll = start;
   const endScroll = end;
 
-  // eslint-disable-next-line @next/next/no-img-element
-  const halfFrames = Array.from({ length: numFrames }, (_, i) => <img key={i} className="fixed top-0 left-0 w-screen h-screen object-cover z-1000 transform scale-y-[-1]" id={`${i+1}`} src={`/waves/${i + 1}.png`} alt="" />);
-
-  const frames = [...halfFrames, ...halfFrames.slice().reverse()];
+  // Memoize the frames to prevent recreating them on every render
+  const frames = useMemo(() => {
+    const halfFrames = Array.from({ length: numFrames }, (_, i) => (
+      <img 
+        key={i} 
+        className="fixed top-0 left-0 w-screen h-screen object-cover z-1000 transform scale-y-[-1]" 
+        id={`${i+1}`} 
+        src={`/waves/${i + 1}.png`} 
+        alt="" 
+        loading="eager"
+      />
+    ));
+    return [...halfFrames, ...halfFrames.slice().reverse()];
+  }, [numFrames]);
 
   return (
     <motion.div className="fixed z-10 w-screen">

@@ -35,3 +35,8 @@ export interface HackatimeStatsProjectData extends HackatimeStatsData {
 export interface HackatimeStatsProject {
   data: HackatimeStatsProjectData;
 }
+
+export interface HacaktimeMostRecentHeartbeat {
+  has_heartbeat: boolean,
+  heartbeat: unknown
+}

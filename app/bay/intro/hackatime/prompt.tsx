@@ -4,6 +4,10 @@ import Image from "next/image";
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
 
+// Hackatime Setup Page Prompt
+// The main client-side modal that checks for account & heartbeat status
+//
+// slackId: The slack id of the user to check hackatime
 export default function Prompt({ slackId }: { slackId: string }) {
   const [accountStatus, setAccountStatus] = useState(false);
   const [heartbeatStatus, setHeartbeatStatus] = useState(false);

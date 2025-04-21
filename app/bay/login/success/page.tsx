@@ -3,12 +3,16 @@ import { getRecords } from "@/lib/airtable";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 
+// Login Successful Redirection Page
+//
+// Manages the flow and makes sure the user has completed the intro, else redirect them to their current stage
 export default async function Page() {
   const session = await getServerSession(opts);
 
+  // If user not logged in, redirect to login page
   if (!session || !session?.user) redirect("/bay/login");
 
-  // FIXME: Flow Incomplete
+  // FIXME: Flow Incomplete: Toriel invite
   // if (!(await checkSlackUserExists(session!.user!.email!)))
   // redirect("/bay/intro/slack");
 
@@ -18,7 +22,7 @@ export default async function Page() {
   // if (!hackatimeUser) redirect("/bay/intro/hackatime");
 
   // TODO: Recent Heartbeat Endpoint not Available
-  // FIXME: Flow Incomplete
+  // FIXME: Flow Incomplete: Heartbeat endpoint not available
   // const hackatimeHeartbeat = await fetchRecentHeartbeat(slackUser!.id!)
   // if (!hackatimeHeartbeat.has_heartbeat) redirect("/bay/intro/hackatime");
 

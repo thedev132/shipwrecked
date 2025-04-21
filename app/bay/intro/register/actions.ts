@@ -5,6 +5,7 @@ import { createRecord } from "@/lib/airtable";
 import { getServerSession } from "next-auth";
 import { z } from "zod";
 
+// The form schema for extra validation
 const schema = z.object({
     // Personal Details
     "First Name": z.string().nonempty({
@@ -52,16 +53,28 @@ export type FormSave = {
     valid: boolean
 };
 
+/**
+ * Parses the form fields and saves to airtable
+ * If a session is found, use that, else use the payload email
+ * 
+ * @param state - The prev save state
+ * @param payload - The form payload
+ * @returns FormSave - The form output
+ */
 export async function save(state: FormSave, payload: FormData): Promise<FormSave> {
+    // Get Session
     const session = await getServerSession(opts);
 
+    // Get all of the schema keys and save the unparsed formdata according to the schema keys as field names
     const keys = Object.keys(schema.shape);
 
     const data: Data = {};
     keys.forEach((k: string) => (data[k] = payload.get(k) as string));
 
+    // Validate form data
     const validated = await schema.safeParseAsync(data);
 
+    // If Validation fails, return prematurely
     if (!validated.success) {
         const errors = validated.error.flatten().fieldErrors;
 
@@ -72,6 +85,7 @@ export async function save(state: FormSave, payload: FormData): Promise<FormSave
         };
     }
 
+    // If the payload contains an email, parse it and save it to the validated scheme
     if (payload.get("Email")) {
         const email = await z.string().email().safeParseAsync(payload.get("Email"))
 
@@ -86,13 +100,18 @@ export async function save(state: FormSave, payload: FormData): Promise<FormSave
         (validated.data as Record<string, string>)["Email"] = email.data
     }
 
+    // Create a new Entry
     const newEntry: EntryData = { ...validated.data };
+
+    // If a session exists, use that email on the new entry
     if (session && session!.user && session!.user!.email)
         newEntry["Email"] = session!.user!.email!
 
+    // If neither a session nor the form data contain an email, return prematurily
     if (!newEntry["Email"])
         return { errors: { Email: ["An email is required!"] }, data: undefined, valid: false }
 
+    // Create airtable record
     await createRecord("Users", newEntry)
 
     return {

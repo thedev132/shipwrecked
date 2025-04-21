@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { opts } from "@/app/api/auth/[...nextauth]/route";
 import Form from "./form";
 
+// Registration Page (/bay/intro/register)
+// Guides the user to fill out a registration form
 export default async function Page() {
   const session = await getServerSession(opts);
 

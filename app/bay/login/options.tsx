@@ -2,6 +2,7 @@
 
 import { signIn } from "next-auth/react";
 
+// Client Side Login Option Modal
 export default function LoginOptions() {
   const callback = "/bay/login/success";
 
@@ -12,6 +13,7 @@ export default function LoginOptions() {
   function loginWithEmail(form: FormData) {
     const email = form.get("email");
 
+    // If no email is entered in the form, return prematurily
     if (!email) return;
 
     signIn("email", { email, callbackUrl: callback });

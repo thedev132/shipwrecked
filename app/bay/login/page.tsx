@@ -1,5 +1,6 @@
 import LoginOptions from "./options";
 
+// Login Page (/bay/intro/login)
 export default async function Page() {
   return (
     <>

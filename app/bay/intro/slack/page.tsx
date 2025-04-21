@@ -4,6 +4,8 @@ import { getServerSession } from "next-auth";
 import { opts } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 
+// Slack Setup Page (/bay/intro/slack)
+// Guides and confirms the registration of the users in the slack
 export default async function Page() {
   const session = await getServerSession(opts);
 

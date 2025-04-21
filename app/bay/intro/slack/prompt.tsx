@@ -4,6 +4,10 @@ import Image from "next/image";
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
 
+// Slack Setup Page Prompt
+// The main client-side modal that checks for a slack account
+//
+// email: The email to check slack
 export default function Prompt({ email }: { email: string }) {
   // TODO: Send Slack Invite via Toriel
 

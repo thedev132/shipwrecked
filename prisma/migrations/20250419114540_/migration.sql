@@ -1,4 +1,6 @@
 -- CreateTable
+-- Fix NextAuth Prisma Database Schema
+
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
     "name" TEXT,

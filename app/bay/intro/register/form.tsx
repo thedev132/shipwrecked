@@ -10,6 +10,9 @@ import Image from "next/image";
 import { redirect } from "next/navigation";
 import { signIn } from "next-auth/react";
 
+// Client Side Registration Form
+//
+// If hasSession is true, hide the email/log in with slack option
 export default function Form({ hasSession }: { hasSession?: boolean }) {
   const [state, formAction, pending] = useActionState(save, {
     errors: undefined,
@@ -17,6 +20,7 @@ export default function Form({ hasSession }: { hasSession?: boolean }) {
     valid: false,
   });
 
+  // If the state changes and the data is valid, redirect to the form completion page
   useEffect(() => {
     if (state.valid) redirect("/bay/intro/register/complete");
   }, [state]);
@@ -28,6 +32,7 @@ export default function Form({ hasSession }: { hasSession?: boolean }) {
           Complete your Registration
         </h1>
         Ahoy! Your registration is almost ready, just complete the form below!
+        {/* Hide Email field if user has prev logged in */}
         {!hasSession && (
           <div className="lg:flex justify-center items-center">
             <div className="my-5 mx-6">
@@ -64,6 +69,9 @@ export default function Form({ hasSession }: { hasSession?: boolean }) {
             </div>
           </div>
         )}
+        {/* 
+          Form elements are grouped by two when a screen is large, else wrap
+        */}
         <form className="flex flex-col justify-center" action={formAction}>
           <FormGroup name="About You">
             <div className="lg:flex justify-center">
@@ -154,12 +162,7 @@ export default function Form({ hasSession }: { hasSession?: boolean }) {
                 ZIP / Postal Code
               </FormInput>
 
-              <FormSelect
-                values={countries}
-                fieldName="Country"
-                placeholder="United States"
-                required
-              >
+              <FormSelect values={countries} fieldName="Country" required>
                 Country
               </FormSelect>
             </div>

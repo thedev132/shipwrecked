@@ -6,88 +6,88 @@ import Modal from '@/components/common/Modal';
 import Toast from '@/components/common/Toast';
 import { useState } from 'react';
 
-export default function BayPage() {
+export default function Bay() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [toastType, setToastType] = useState<'success' | 'error' | 'info' | 'warning'>('info');
+  const [showToast, setShowToast] = useState(false);
 
-  const showToast = (message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info') => {
-    setToastMessage(message);
-    setToastType(type);
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleSubmit = () => {
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
   };
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Welcome to the Bay!</h1>
-      
-      <div className={styles.progressSection}>
-        <h2>Progress Bar Examples</h2>
-        <p className={styles.description}>
-          Below are examples of our skinnable progress bars in different states and colors:
-        </p>
-        <div style={{ maxWidth: '400px' }}>
-          <ProgressBar 
-            value={75} 
-            label="Success Variant (75%)"
-            variant="success"
-            height={8}
-          />
-          <ProgressBar 
-            value={30} 
-            label="Warning Variant (30%)"
-            variant="warning"
-            height={8}
-          />
-          <ProgressBar 
-            value={90} 
-            label="Error Variant (90%)"
-            variant="error"
-            height={8}
-          />
+      <div className={styles.content}>
+        <h1 className={styles.title}>Shipwrecked Bay</h1>
+        
+        <div className={styles.stats}>
+          <div className={styles.statItem}>
+            <span className={styles.statLabel}>Total Ships</span>
+            <span className={styles.statValue}>0</span>
+          </div>
+          <div className={styles.statItem}>
+            <span className={styles.statLabel}>Ships at Sea</span>
+            <span className={styles.statValue}>0</span>
+          </div>
+          <div className={styles.statItem}>
+            <span className={styles.statLabel}>Ships in Port</span>
+            <span className={styles.statValue}>0</span>
+          </div>
         </div>
-      </div>
 
-      <div className={styles.actions}>
-        <button
-          className={styles.modalButton}
-          onClick={() => setIsModalOpen(true)}
+        <div className={styles.actions}>
+          <button 
+            className={styles.modalButton}
+            onClick={handleOpenModal}
+          >
+            Open Example Modal
+          </button>
+          
+          <a 
+            href="/bay/submit" 
+            className={styles.submitLink}
+          >
+            Submit New Ship
+          </a>
+        </div>
+
+        <Modal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          title="Example Modal"
         >
-          Open Example Modal
-        </button>
-        <Link href="/submit" className={styles.submitButton}>
-          Submit Your Project
-        </Link>
-        <button
-          className={styles.toastButton}
-          onClick={() => showToast('This is an example toast notification!', 'success')}
-        >
-          Show Toast Example
-        </button>
+          <div className={styles.modalContent}>
+            <p>This is an example modal with the following features:</p>
+            <ul>
+              <li>Centered on screen</li>
+              <li>Backdrop blur effect</li>
+              <li>Close button</li>
+              <li>Custom title</li>
+            </ul>
+            <button 
+              className={styles.submitButton}
+              onClick={handleSubmit}
+            >
+              Submit
+            </button>
+          </div>
+        </Modal>
+
+        {showToast && (
+          <Toast
+            message="Form submitted successfully!"
+            onClose={() => setShowToast(false)}
+          />
+        )}
       </div>
-
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title="Example Modal"
-        okText="Got it!"
-      >
-        <p>This is an example modal that demonstrates the following features:</p>
-        <ul className={styles.modalList}>
-          <li>Custom title and button text</li>
-          <li>Click outside to close</li>
-          <li>Escape key to close</li>
-          <li>Accessible focus management</li>
-          <li>Smooth animations</li>
-        </ul>
-      </Modal>
-
-      {toastMessage && (
-        <Toast
-          message={toastMessage}
-          type={toastType}
-          onClose={() => setToastMessage(null)}
-        />
-      )}
     </div>
   );
 } 

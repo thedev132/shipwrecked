@@ -48,7 +48,7 @@ export default function Shore() {
               scrollToPercent(0.10);
             }}>
             <span className="sr-only">Go to next section</span>
-            <Image src="/bottle.png" alt="" width={690} height={403} className="h-auto md:w-[50vw] w-[75vw]"  />
+            <Image src="/bottle.png" alt="" style={{cursor: "pointer"}} width={690} height={403} className="h-auto md:w-[50vw] w-[75vw]"  />
           </button>
           <div className="space-y-3 my-6">
             <div className="size-2 rounded-full bg-[#3B2715]"></div>

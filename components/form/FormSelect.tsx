@@ -16,7 +16,7 @@ export default function FormSelect({
   children: ReactNode;
 }) {
   let selectClasses =
-    "w-96 px-4 py-2 bg-gray-100 rounded outline-1 outline-gray-200";
+    "w-82 px-4 py-2 bg-gray-100 rounded outline-1 outline-gray-200";
   if (multiple) selectClasses += " h-64";
 
   return (

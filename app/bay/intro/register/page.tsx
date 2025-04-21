@@ -1,16 +1,14 @@
 import ProgressBar from "@/components/common/ProgressBar";
 import { getServerSession } from "next-auth";
 import { opts } from "@/app/api/auth/[...nextauth]/route";
-import { redirect } from "next/navigation";
+import Form from "./form";
 
 export default async function Page() {
   const session = await getServerSession(opts);
 
-  if (!session || !session?.user || !session.user.email) redirect("/bay/login");
-
   return (
     <>
-      <div className="flex flex-col items-center justify-center h-[100vh] w-[100vw] bg-[url(/hut.png)]">
+      <div className="flex flex-col items-center justify-center w-[100vw] bg-[url(/hut.png)] bg-no-repeat bg-cover py-12">
         <img src="/logo-border.png" className="w-102 mb-4"></img>
         <div className="w-102">
           <ProgressBar
@@ -19,6 +17,14 @@ export default async function Page() {
             className="border rounded border-gray-900/60"
           ></ProgressBar>
         </div>
+
+        <Form
+          hasSession={
+            session != null &&
+            session!.user != null &&
+            session!.user!.email != null
+          }
+        ></Form>
       </div>
     </>
   );

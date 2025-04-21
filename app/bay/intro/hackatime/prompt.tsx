@@ -2,15 +2,25 @@
 
 import Image from "next/image";
 import { redirect } from "next/navigation";
-import { useActionState } from "react";
-import { revalidate } from "./actions";
+import { useEffect, useState } from "react";
 
 export default function Prompt({ slackId }: { slackId: string }) {
-  const [status, revalidateAction] = useActionState(revalidate, false);
+  const [accountStatus, setAccountStatus] = useState(false);
+  const [heartbeatStatus, setHeartbeatStatus] = useState(false);
 
   function recheck() {
-    revalidateAction(slackId);
+    fetch(`/api/intro/hackatime?q=${slackId}`)
+      .then((d) => d.json())
+      .then((d) => setAccountStatus(d["exists"]));
+
+    fetch(`/api/intro/hackatime_heartbeat?q=${slackId}`)
+      .then((d) => d.json())
+      .then((d) => setHeartbeatStatus(d["exists"]));
+
+    if (!accountStatus || !heartbeatStatus) setTimeout(recheck, 5000);
   }
+
+  useEffect(recheck, []);
 
   function next() {
     redirect("/bay/login/success");
@@ -39,13 +49,24 @@ export default function Prompt({ slackId }: { slackId: string }) {
         <br /> <br />
         {/* Status Check */}
         <div className="flex justify-center">
-          <h2 className="text-center font-semibold text-2xl mr-2">
-            <img
-              src={`/mark-${status ? "check" : "cross"}.svg`}
-              className="w-10 inline"
-            />{" "}
-            {!status ? "No" : ""} Heartbeat from Hackatime Account Found!
-          </h2>
+          <div>
+            <h2 className="text-center font-semibold text-2xl mr-2">
+              <img
+                src={`/mark-${accountStatus ? "check" : "cross"}.svg`}
+                className="w-10 inline"
+              />{" "}
+              {!accountStatus ? "No" : ""} Hackatime Account Found!
+            </h2>
+            <h2 className="text-center font-semibold text-2xl mr-2">
+              <img
+                src={`/mark-${heartbeatStatus ? "check" : "cross"}.svg`}
+                className="w-10 inline"
+              />{" "}
+              {!heartbeatStatus ? "No" : ""} Heartbeat from Hackatime Account
+              Found!
+            </h2>
+          </div>
+
           <button
             className="ml-2 py-2 md:px-4 px-2 uppercase italic bg-dark-blue/60 text-sand border border-sand whitespace-nowrap text-xs md:text-base transition hover:border-yellow backdrop-blur-sm rounded-full cursor-pointer"
             onClick={recheck}
@@ -54,25 +75,24 @@ export default function Prompt({ slackId }: { slackId: string }) {
           </button>
         </div>
         {/* Continue */}
-        {status && (
-          <div className="flex justify-end">
-            <button
-              className="py-2 md:px-4 px-2 uppercase italic bg-dark-blue/60 text-sand border border-sand whitespace-nowrap text-xs md:text-base transition hover:border-yellow backdrop-blur-sm rounded-full cursor-pointer"
-              onClick={next}
-            >
-              <span className="flex items-center gap-3 flex-nowrap">
-                Next!
-                <Image
-                  src="/back-arrow.png"
-                  width={24}
-                  height={24}
-                  alt="next"
-                  className="w-8 h-8 -scale-x-100"
-                />
-              </span>
-            </button>
-          </div>
-        )}
+        <div className="flex justify-end mt-2">
+          <button
+            className="py-2 md:px-4 px-2 uppercase disabled:bg-dark-blue/20 bg-dark-blue/60 text-sand border border-sand whitespace-nowrap text-xs md:text-base transition hover:not-disabled:border-yellow backdrop-blur-sm rounded-full cursor-pointer"
+            onClick={next}
+            disabled={!accountStatus || !heartbeatStatus}
+          >
+            <span className="flex items-center gap-3 flex-nowrap">
+              Next!
+              <Image
+                src="/back-arrow.png"
+                width={24}
+                height={24}
+                alt="next"
+                className="w-8 h-8 -scale-x-100"
+              />
+            </span>
+          </button>
+        </div>
       </div>
     </>
   );

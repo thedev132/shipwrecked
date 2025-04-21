@@ -1,12 +1,11 @@
 import NextAuth from "next-auth";
 import SlackProvider from "next-auth/providers/slack";
 import EmailProvider from "next-auth/providers/email";
-import { PrismaClient } from "@/app/generated/prisma/client";
 import { PrismaAdapter } from "@auth/prisma-adapter";
+import { prisma } from "@/lib/prisma";
 
-const prisma = new PrismaClient();
 
-const opts = {
+export const opts = {
   adapter: PrismaAdapter(prisma),
   providers: [
     SlackProvider({
@@ -19,13 +18,12 @@ const opts = {
       maxAge: 60 * 10 // make email links valid for 10 minutes
     })
   ],
-  callbacks: {
-    async signIn({ user, account, profile, email, credentials }: any) {
-      // user.name = { id: user.id, display: user.name }
-      return true;
-    }
-  },
-  // secret: process.env.NEXTAUTH_SECRET,
+  // callbacks: {
+  //   async signIn({ user, account, profile, email, credentials }: any) {
+  //     // user.name = { id: user.id, display: user.name }
+  //     return true;
+  //   }
+  // },
   debug: true
 }
 

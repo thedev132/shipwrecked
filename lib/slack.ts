@@ -1,12 +1,13 @@
-import { WebClient } from '@slack/web-api';
+import { Block, ChatPostMessageResponse, MessageAttachment, WebClient } from '@slack/web-api';
+import { User } from '@slack/web-api/dist/types/response/UsersLookupByEmailResponse';
 
 // Initialize Slack client
 const slack = new WebClient(process.env.SLACK_BOT_TOKEN);
 
 interface SlackMessageOptions {
   text: string;
-  blocks?: any[]; // Slack block kit blocks
-  attachments?: any[]; // Slack message attachments
+  blocks?: Block[]; // Slack block kit blocks
+  attachments?: MessageAttachment[]; // Slack message attachments
   thread_ts?: string; // Thread timestamp for replies
 }
 
@@ -19,7 +20,7 @@ interface SlackMessageOptions {
 export async function sendChannelMessage(
   channelId: string,
   options: SlackMessageOptions
-): Promise<any> {
+): Promise<ChatPostMessageResponse> {
   try {
     const result = await slack.chat.postMessage({
       channel: channelId,
@@ -28,7 +29,7 @@ export async function sendChannelMessage(
       attachments: options.attachments,
       thread_ts: options.thread_ts,
     });
-    
+
     return result;
   } catch (error) {
     console.error('Error sending message to Slack channel:', error);
@@ -45,7 +46,7 @@ export async function sendChannelMessage(
 export async function sendUserMessage(
   userId: string,
   options: SlackMessageOptions
-): Promise<any> {
+): Promise<ChatPostMessageResponse> {
   try {
     // First, open a direct message channel with the user
     const conversation = await slack.conversations.open({
@@ -103,4 +104,9 @@ export function createButtonBlock(text: string, actionId: string, value: string)
       },
     ],
   };
-} 
+}
+
+export async function getUserByEmail(email: string): Promise<User | undefined> {
+  const lookup = await slack.users.lookupByEmail({ email: email })
+  return lookup.user;
+}

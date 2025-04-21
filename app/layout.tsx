@@ -27,16 +27,19 @@ const baloo = Baloo_Da_2({
 
 export const metadata: Metadata = {
   title: "ShipWrecked!",
-  description: "Join us for an unforgettable weekend of hacking and adventure at ShipWrecked!",
+  description:
+    "Join us for an unforgettable weekend of hacking and adventure at ShipWrecked!",
   openGraph: {
     title: "ShipWrecked!",
-    description: "Join us for an unforgettable weekend of hacking and adventure at ShipWrecked!",
+    description:
+      "Join us for an unforgettable weekend of hacking and adventure at ShipWrecked!",
     siteName: "ShipWrecked!",
   },
   twitter: {
     title: "ShipWrecked!",
-    description: "Join us for an unforgettable weekend of hacking and adventure at ShipWrecked!",
-  }
+    description:
+      "Join us for an unforgettable weekend of hacking and adventure at ShipWrecked!",
+  },
 };
 
 export default function RootLayout({
@@ -49,7 +52,9 @@ export default function RootLayout({
       <head>
         <Script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></Script>
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${baloo.variable}`}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${baloo.variable}`}
+      >
         {children}
       </body>
     </html>

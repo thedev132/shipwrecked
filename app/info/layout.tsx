@@ -23,7 +23,7 @@ export default function MDInfoLayout({
       {/* Sidebar */}
       <div
         className={`
-          fixed z-50 inset-y-0 left-0 w-64 bg-white shadow-lg transform transition-transform duration-200
+          md:sticky fixed z-50 inset-y-0 left-0 w-64 bg-white shadow-lg transform transition-transform duration-200
           h-screen md:static md:translate-x-0 md:shadow-none min-h-screen
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
         `}

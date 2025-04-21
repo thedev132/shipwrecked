@@ -36,17 +36,17 @@ export default function Shore() {
               <TriggerButton targetPercent={0.46}>What&apos;s Shipwrecked?</TriggerButton>
               <p className="text-sm italic text-sand py-2">(click here or scroll to continue)</p>
               <button className="absolute md:bottom-[calc(100vh+30px)] bottom-[calc(100vh+20px)] right-10 text-6xl" onClick={() => {
-                scrollToPercent(0);
+                scrollToPercent(0, 0.1);
               }}>
-              <Image src="/back-arrow.png" width={80} height={80} alt="arrow" className="w-20 h-20 rotate-270" />
-            </button>
+                <Image src="/back-arrow.png" width={80} height={80} alt="arrow" className="w-20 h-20 rotate-270" />
+              </button>
             </div>
           </div>
         </div>
         <div className="w-screen h-screen flex flex-col items-center justify-center p-8">
-            <button onClick={() => {
-              scrollToPercent(0.10);
-            }}>
+          <button onClick={() => {
+            scrollToPercent(0.10);
+          }}>
             <span className="sr-only">Go to next section</span>
             <Image src="/bottle.png" alt="" style={{cursor: "pointer"}} width={690} height={403} className="h-auto md:w-[50vw] w-[75vw]"  />
           </button>

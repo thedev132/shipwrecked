@@ -7,7 +7,7 @@ import Waves from "./Waves";
 import Bay from "./Bay";
 import Faq from "./Faq";
 
-export const ScrollProgressContext = createContext<[number, (n: number) => void]>([0, () => {}]);
+export const ScrollProgressContext = createContext<[number, (n: number, duration?: number) => void]>([0, () => { }]);
 
 export default function Story() {
   const [scrollPercent, setScrollPercent] = useState(0);
@@ -33,7 +33,7 @@ export default function Story() {
 
     return () => unsubscribe();
   }, [motionValue]);
-  
+
   useEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.scrollY;
@@ -48,10 +48,10 @@ export default function Story() {
     };
   }, []);
 
-  const scrollToPercent = (percent: number) => {
+  const scrollToPercent = (percent: number, duration?: number) => {
     animate(motionValue, percent, {
       type: "spring",
-      duration: 5,
+      duration: duration || 5,
       ease: 'easeIn', // 'cubic-bezier(0.83, 0, 0.17, 1)'
       bounce: 0,
     });
@@ -84,13 +84,13 @@ export default function Story() {
 
         <div className="">
           shore: 0-0.21
-          {scrollPercent < (shoreEnd + (wavesEnd-shoreEnd)/2) && <Shore />}
-          {(scrollPercent >= shoreEnd && scrollPercent < wavesEnd) && <Waves start={shoreEnd} end={wavesEnd} /> }
-          {(scrollPercent >= (wavesEnd - (wavesEnd-shoreEnd)/2) && scrollPercent < infoEnd + (waves2End-infoEnd)/2) && <Info bayStart={waves2End} shoreEnd={shoreEnd}/> }
-          {(scrollPercent >= infoEnd && scrollPercent < waves2End) && <Waves start={infoEnd} end={waves2End} /> }
-          {(scrollPercent >= waves2End - (waves2End-infoEnd)/2) && scrollPercent < bayEnd + (waves3End-bayEnd)/2 && <Bay start={waves2End} end={bayEnd} /> }
-          {(scrollPercent >= bayEnd && scrollPercent < waves3End) && <Waves start={bayEnd} end={waves3End} /> }
-          {(scrollPercent >= waves3End - (waves3End-bayEnd)/2) && <Faq /> }
+          {scrollPercent < (shoreEnd + (wavesEnd - shoreEnd) / 2) && <Shore />}
+          {(scrollPercent >= shoreEnd && scrollPercent < wavesEnd) && <Waves start={shoreEnd} end={wavesEnd} />}
+          {(scrollPercent >= (wavesEnd - (wavesEnd - shoreEnd) / 2) && scrollPercent < infoEnd + (waves2End - infoEnd) / 2) && <Info bayStart={waves2End} shoreEnd={shoreEnd} />}
+          {(scrollPercent >= infoEnd && scrollPercent < waves2End) && <Waves start={infoEnd} end={waves2End} />}
+          {(scrollPercent >= waves2End - (waves2End - infoEnd) / 2) && scrollPercent < bayEnd + (waves3End - bayEnd) / 2 && <Bay start={waves2End} end={bayEnd} />}
+          {(scrollPercent >= bayEnd && scrollPercent < waves3End) && <Waves start={bayEnd} end={waves3End} />}
+          {(scrollPercent >= waves3End - (waves3End - bayEnd) / 2) && <Faq />}
         </div>
       </motion.div>
     </ScrollProgressContext.Provider>

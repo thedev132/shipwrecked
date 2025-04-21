@@ -28,17 +28,17 @@ export default function Waves({ start, end }: { start: number, end: number }) {
 
   return (
     <motion.div className="fixed z-10 w-screen">
-        {/* map 15-25% to 0 opacity to 1 to 0 */}
-        <motion.div className="fixed inset-0 z-50 pointer-events-none" style={{
-          opacity:
-            scrollPercent < startScroll ? 0 // less than 15% is invisible
+      {/* map 15-25% to 0 opacity to 1 to 0 */}
+      <motion.div className="fixed inset-0 z-50 pointer-events-none" style={{
+        opacity:
+          scrollPercent < startScroll ? 0 // less than 15% is invisible
             : scrollPercent >= startScroll && scrollPercent <= endScroll ? 1 // is 1 on 20-22%
-            : 0, // greater than 25% is invisible
-        }} />
+              : 0, // greater than 25% is invisible
+      }} />
 
-        <div className="">
-          {frames[Math.floor(((scrollPercent-startScroll)/(endScroll-startScroll))*(numFrames*2))]}
-        </div>
-      </motion.div>
+      <div className="">
+        {frames[Math.floor(((scrollPercent - startScroll) / (endScroll - startScroll)) * (numFrames * 2))]}
+      </div>
+    </motion.div>
   )
 }

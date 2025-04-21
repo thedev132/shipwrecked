@@ -24,13 +24,7 @@ export const opts = {
       maxAge: 60 * 10 // make email links valid for 10 minutes
     })
   ],
-  // callbacks: {
-  //   async signIn({ user, account, profile, email, credentials }: any) {
-  //     // user.name = { id: user.id, display: user.name }
-  //     return true;
-  //   }
-  // },
-  debug: true
+  // debug: true
 }
 
 const handler = NextAuth(opts)

@@ -6,7 +6,7 @@ import { ScrollProgressContext } from "./Story";
 export default function Waves({ start, end }: { start: number, end: number }) {
   const [scrollPercent] = useContext(ScrollProgressContext);
 
-  const numFrames = 15;
+  const numFrames = 10;
 
   const startScroll = start;
   const endScroll = end;

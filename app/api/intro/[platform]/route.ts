@@ -2,6 +2,17 @@ import { checkHackatimeUserExists } from "@/lib/hackatime";
 import { checkSlackUserExists } from "@/lib/slack";
 import { NextRequest } from "next/server";
 
+/*
+ * API Call to check the existance of certain platforms
+ * Current platforms/features to be checked: slack, hackatime, hackatime_heartbeat
+ * 
+ * 
+ * The query search paramater defines the object to be queried
+ *  + platform: slack, query: email@example.com ; Checks if slack user with the query email exists
+ *  + platform: hackatime, query: slackid ; Checks if a hackatime user with that query slackid exists
+ *  + platform: hackatime_heartbeat, query: slackid ; Checks if a hackatime heartbeat for the user with the query slackid exists
+ * 
+ */
 export async function GET(request: NextRequest, { params }: { params: Promise<{ platform: string }> }) {
     const platform = (await params).platform
 

@@ -13,10 +13,10 @@ export default function Info({ bayStart, shoreEnd }: { bayStart: number, shoreEn
   
   return (
     <div className="fixed inset-0 z-0">
-      <div className="h-screen aspect-video flex " style={{
+      <div className="h-screen w-screen aspect-video flex " style={{
         backgroundImage: `url('/hut.jpg')`,
         backgroundSize: "cover",
-        backgroundPosition: "center",
+        backgroundPosition: "right center",
       }}>
         <div className="w-screen h-screen flex flex-col items-start justify-center p-8 relative text-dark-brown">
           <div className="bg-sand/60 border border-sand p-6 rounded-md w-full max-w-4xl backdrop-blur-md">

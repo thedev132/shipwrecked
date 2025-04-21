@@ -18,10 +18,10 @@ export default function Bay({ start, end }:{ start: number, end: number }) {
   
   return (
     <div className="fixed inset-0 z-0">
-      <div className="h-screen aspect-video flex" style={{
+      <div className="h-screen w-screen aspect-video flex" style={{
         backgroundImage: `url('/bay.jpg')`,
         backgroundSize: "cover",
-        backgroundPosition: "center",
+        backgroundPosition: "center right",
       }}>
         <div className="w-screen h-screen flex flex-col items-end justify-end p-8 md:pb-20 relative">
           <div className="bg-sand/60 border border-sand p-6 rounded-md w-full max-w-4xl backdrop-blur-md text-dark-brown">

@@ -33,14 +33,14 @@ export default function SignupProgress() {
 
   return (
     <div className="bg-sand/60 border border-sand p-4 rounded-md backdrop-blur-md text-dark-brown mb-4">
-      <p className="text-lg mb-2">
+      <p className="text-sm sm:text-base mb-2">
         <span className="font-bold">{count}</span> people have signed up so far!
       </p>
       <ProgressBar 
         value={progress} 
         max={100}
         variant="success"
-        height={8}
+        height={6}
         animated
         label={`${Math.round(progress)}% to 5000`}
       />

@@ -18,16 +18,16 @@ export default function CallToAction({ previous }:{ previous: number }) {
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}>
-        <div className="w-screen h-screen flex flex-col items-center justify-center p-8 relative">
-          <div className="absolute top-[50px] left-1/2 transform -translate-x-1/2 z-50">
+        <div className="w-screen h-screen flex flex-col items-center p-4 sm:p-8">
+          <div className="mt-2 sm:mt-[30px] w-full sm:w-[600px] max-w-4xl">
             <SignupProgress />
           </div>
-          <div className="bg-sky-blue/30 border border-sky-blue p-6 rounded-md w-full max-w-4xl md:h-[50vh] backdrop-blur-sm flex flex-col justify-between text-center">
-            <div className="flex-1 flex items-center justify-center">
+          <div className="mt-2 sm:mt-[30px] bg-sky-blue/30 border border-sky-blue p-2 sm:p-6 rounded-md w-full max-w-4xl min-h-[500px] sm:min-h-[600px] backdrop-blur-sm flex flex-col justify-between text-center overflow-hidden">
+            <div className="flex-1 flex flex-col items-center justify-center gap-2 sm:gap-4">
               <Form />
-            </div>
-            <div className="mt-4">
-              <span className="font-bold text-black">NOTE:</span> You can find additional questions answered on the <Link className="link" href="/info">Shipwrecked Information Docs</Link>
+              <div className="text-center px-2 text-sm sm:text-base">
+                <span className="font-bold text-black">NOTE:</span> You can find additional questions answered on the <Link className="link" href="/info">Shipwrecked Information Docs</Link>
+              </div>
             </div>
           </div>
         </div>

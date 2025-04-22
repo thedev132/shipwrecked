@@ -1,8 +1,9 @@
-'use client';
-import { useState } from 'react';
+"use client";
+import { useState } from "react";
 import Story from "@/components/launch/Story";
-import { ReactLenis } from 'lenis/react';
-import LoadingModal from '@/components/common/LoadingModal';
+import { ReactLenis } from "lenis/react";
+import LoadingModal from "@/components/common/LoadingModal";
+import Link from "next/link";
 
 const loadingMessages = [
   "Swabbing the decks...",
@@ -24,7 +25,7 @@ const loadingMessages = [
   "Filling the water barrels...",
   "Checking the rigging...",
   "Waxing the figurehead...",
-  "Preparing the plank..."
+  "Preparing the plank...",
 ];
 
 export default function Home() {
@@ -38,24 +39,23 @@ export default function Home() {
     // Wave images
     ...Array.from({ length: 10 }, (_, i) => `/waves/${i + 1}.png`),
     // Other large files
-    '/signatures.png',
-    '/Key-personel.jpg',
-    '/shore.jpg',
-    '/logo.png',
-    '/hut.jpg',
-    '/location-icon.png',
-    '/faq.jpg',
-    '/bottlebig.png',
-    '/calendar-icon.png',
-    '/bottle.png',
-    '/bay.jpg',
-    '/back-arrow.png'
+    "/signatures.png",
+    "/Key-personel.jpg",
+    "/shore.jpg",
+    "/logo.png",
+    "/hut.jpg",
+    "/location-icon.png",
+    "/faq.jpg",
+    "/bottlebig.png",
+    "/calendar-icon.png",
+    "/bottle.png",
+    "/bay.jpg",
+    "/back-arrow.png",
   ];
-
 
   if (isLoading) {
     return (
-      <LoadingModal 
+      <LoadingModal
         titles={loadingMessages}
         imageUrls={imageUrls}
         onLoadComplete={handleLoadComplete}
@@ -67,6 +67,20 @@ export default function Home() {
     <ReactLenis root>
       <div>
         <main className="h-[1000vh]">
+          <Link href="https://hackclub.com">
+            <img
+              style={{
+                position: "fixed",
+                top: "20px",
+                left: "0",
+                border: "0",
+                width: "180px",
+                zIndex: "999",
+              }}
+              src="https://assets.hackclub.com/banners/2025.svg"
+              alt="Hack Club"
+            />
+          </Link>
           <Story />
         </main>
       </div>

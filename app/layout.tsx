@@ -18,16 +18,19 @@ const baloo = Baloo_Da_2({
 
 export const metadata: Metadata = {
   title: "Shipwrecked",
-  description: "Join us for an unforgettable four days of hacking and adventure at Shipwrecked!",
+  description:
+    "Join us for an unforgettable four days of hacking and adventure at Shipwrecked!",
   openGraph: {
     title: "Shipwrecked",
-    description: "Join us for an unforgettable four days of hacking and adventure at Shipwrecked!",
+    description:
+      "Join us for an unforgettable four days of hacking and adventure at Shipwrecked!",
     siteName: "Shipwrecked",
   },
   twitter: {
     title: "Shipwrecked",
-    description: "Join us for an unforgettable four days of hacking and adventure at Shipwrecked!",
-  }
+    description:
+      "Join us for an unforgettable four days of hacking and adventure at Shipwrecked!",
+  },
 };
 
 export default function RootLayout({
@@ -41,18 +44,6 @@ export default function RootLayout({
         <link rel="stylesheet" href="https://use.typekit.net/mfm5adk.css" />
       </head>
       <body className={`${poppins.variable} ${baloo.variable}`}>
-        <img 
-          style={{ 
-            position: 'fixed', 
-            top: '20px', 
-            left: '0', 
-            border: '0', 
-            width: '180px', 
-            zIndex: '999'
-          }} 
-          src="https://assets.hackclub.com/banners/2025.svg" 
-          alt="Hack Club"
-        />
         <SignUpButton />
         {children}
       </body>

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import { motion, useMotionValue, animate } from "motion/react";
 import { createContext, useEffect, useState } from "react";
 import Shore from "./Shore";
@@ -7,12 +7,13 @@ import Waves from "./Waves";
 import Bay from "./Bay";
 import CallToAction from "./CallToAction";
 
-export const ScrollProgressContext = createContext<[number, (n: number, duration?: number) => void]>([0, () => { }]);
+export const ScrollProgressContext = createContext<
+  [number, (n: number, duration?: number) => void]
+>([0, () => {}]);
 
 export default function Story() {
   const [scrollPercent, setScrollPercent] = useState(0);
   const motionValue = useMotionValue(scrollPercent);
-
 
   const sections = {
     shore: { start: 0, end: 0.25 },
@@ -22,9 +23,13 @@ export default function Story() {
     bay: { start: 0.5, end: 0.75 },
     // waves from 0.7 to 0.8
     cta: { start: 0.75, end: 1 },
-  }
+  };
 
-  const WAVE_BOUNDS: [number, number][] = [[0.2, 0.3], [0.45, 0.55], [0.7, 0.8]];
+  const WAVE_BOUNDS: [number, number][] = [
+    [0.2, 0.3],
+    [0.45, 0.55],
+    [0.7, 0.8],
+  ];
 
   const WAVE_OFFSET = 0.075;
 
@@ -33,9 +38,12 @@ export default function Story() {
     const unsubscribe = motionValue.on("change", (latest: number) => {
       setScrollPercent(latest);
       // set scrolltop to match scrollpercent
-      const scrollTop = latest * (document.documentElement.scrollHeight - document.documentElement.clientHeight);
+      const scrollTop =
+        latest *
+        (document.documentElement.scrollHeight -
+          document.documentElement.clientHeight);
       window.scrollTo({
-        top: scrollTop
+        top: scrollTop,
       });
     });
 
@@ -60,20 +68,26 @@ export default function Story() {
     animate(motionValue, percent, {
       type: "spring",
       duration: duration || 5,
-      ease: 'easeIn', // 'cubic-bezier(0.83, 0, 0.17, 1)'
+      ease: "easeIn", // 'cubic-bezier(0.83, 0, 0.17, 1)'
       bounce: 0,
     });
     // correct for scrollTop
-    const scrollTop = percent * (document.documentElement.scrollHeight - document.documentElement.clientHeight);
+    const scrollTop =
+      percent *
+      (document.documentElement.scrollHeight -
+        document.documentElement.clientHeight);
     window.scrollTo({
       top: scrollTop,
       behavior: "smooth",
     });
-  }
+  };
 
-  const animateSectionIfWithinBounds = (start: number, end: number) => scrollPercent >= start && scrollPercent < end;
+  const animateSectionIfWithinBounds = (start: number, end: number) =>
+    scrollPercent >= start && scrollPercent < end;
 
-  const activeWaveBounds = WAVE_BOUNDS.find(([start, end]) => scrollPercent >= start && scrollPercent <= end) || [undefined, undefined];
+  const activeWaveBounds = WAVE_BOUNDS.find(
+    ([start, end]) => scrollPercent >= start && scrollPercent <= end
+  ) || [undefined, undefined];
 
   console.log(scrollPercent);
 
@@ -86,33 +100,47 @@ export default function Story() {
           left: 0,
         }}
       >
-
         <div>
-          { animateSectionIfWithinBounds(sections.shore.start, sections.shore.end) && <Shore next={sections.info.start + WAVE_OFFSET} /> }
-          
-          { animateSectionIfWithinBounds(sections.info.start, sections.info.end) &&
+          {animateSectionIfWithinBounds(
+            sections.shore.start,
+            sections.shore.end
+          ) && <Shore next={sections.info.start + WAVE_OFFSET} />}
+
+          {animateSectionIfWithinBounds(
+            sections.info.start,
+            sections.info.end
+          ) && (
             <Info
               previous={sections.shore.end - WAVE_OFFSET}
               next={sections.bay.start + WAVE_OFFSET}
               start={sections.info.start}
               end={sections.info.end}
             />
-          }
+          )}
 
-          { animateSectionIfWithinBounds(sections.bay.start, sections.bay.end) &&
+          {animateSectionIfWithinBounds(
+            sections.bay.start,
+            sections.bay.end
+          ) && (
             <Bay
               previous={sections.bay.end - WAVE_OFFSET}
               next={sections.cta.start + WAVE_OFFSET}
               start={sections.bay.start}
               end={sections.bay.end}
             />
-          }
+          )}
 
-          { (animateSectionIfWithinBounds(sections.cta.start, sections.cta.end) || scrollPercent === 1) && <CallToAction previous={sections.bay.end - WAVE_OFFSET} /> }
+          {(animateSectionIfWithinBounds(
+            sections.cta.start,
+            sections.cta.end
+          ) ||
+            scrollPercent === 1) && (
+            <CallToAction previous={sections.bay.end - WAVE_OFFSET} />
+          )}
 
           <Waves start={activeWaveBounds[0]} end={activeWaveBounds[1]} />
         </div>
       </motion.div>
     </ScrollProgressContext.Provider>
-  )
+  );
 }

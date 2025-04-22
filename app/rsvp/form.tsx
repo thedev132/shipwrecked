@@ -10,6 +10,7 @@ import Image from "next/image";
 import { redirect } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Toast from "@/components/common/Toast";
+import Link from "next/link";
 
 // Client Side Registration Form
 //
@@ -72,13 +73,13 @@ export default function Form({ hasSession }: { hasSession?: boolean }) {
           onClose={() => setToastMessage(null)}
         />
       )}
-      <div className="text-dark-brown w-full max-w-4xl mb-2">
-        <h1 className="text-4xl md:text-6xl font-bold mb-4">
+      <div className="text-dark-brown w-full max-w-4xl mb-1">
+        <h1 className="text-2xl md:text-6xl font-bold mb-1 md:mb-4">
           RSVP for Shipwrecked!
         </h1>
 
         <form className="flex flex-col justify-center" onSubmit={handleSubmit}>
-          <div className="lg:flex justify-center">
+          <div className="lg:flex justify-center gap-1 md:gap-2">
             <FormInput
               fieldName="First Name"
               state={state}
@@ -101,7 +102,7 @@ export default function Form({ hasSession }: { hasSession?: boolean }) {
             </FormInput>
           </div>
 
-          <div className="lg:flex justify-center">
+          <div className="lg:flex justify-center gap-1 md:gap-2">
             <FormInput
               fieldName="Email"
               state={state}
@@ -125,9 +126,9 @@ export default function Form({ hasSession }: { hasSession?: boolean }) {
             </FormInput>
           </div>
 
-          <div className="flex justify-center mt-2 pt-5">
+          <div className="flex justify-center mt-0 md:mt-2 pt-1 md:pt-5">
             <button
-              className="py-2 md:px-4 px-2 uppercase disabled:bg-dark-blue/20 bg-dark-blue/60 text-sand border border-sand whitespace-nowrap text-xs md:text-base transition hover:not-disabled:border-yellow backdrop-blur-sm rounded-full cursor-pointer"
+              className="py-1 md:py-2 md:px-4 px-2 uppercase disabled:bg-dark-blue/20 bg-dark-blue/60 text-sand border border-sand whitespace-nowrap text-xs md:text-base transition hover:not-disabled:border-yellow backdrop-blur-sm rounded-full cursor-pointer"
               disabled={pending}
             >
               <span className="flex items-center gap-1 flex-nowrap">
@@ -137,12 +138,15 @@ export default function Form({ hasSession }: { hasSession?: boolean }) {
                   width={12}
                   height={12}
                   alt="next"
-                  className="w-8 h-8"
+                  className="w-6 h-6 md:w-8 md:h-8"
                 />
               </span>
             </button>
           </div>
         </form>
+      </div>
+      <div className="text-center px-2 text-sm sm:text-base">
+        <span className="font-bold text-black">NOTE:</span> For more info, see <Link className="link" href="/info">FAQ's</Link>
       </div>
     </>
   );

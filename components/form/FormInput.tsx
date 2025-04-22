@@ -1,5 +1,5 @@
 import { FormSave } from "@/app/bay/submit/actions";
-import { ReactNode } from "react";
+import { ReactNode, ChangeEvent } from "react";
 
 export default function FormInput({
   fieldName,
@@ -9,6 +9,8 @@ export default function FormInput({
   state,
   disabled,
   children,
+  value,
+  onChange,
 }: {
   fieldName: string;
   type?: string;
@@ -17,6 +19,8 @@ export default function FormInput({
   state: FormSave;
   disabled?: boolean;
   children: ReactNode;
+  value?: string;
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
 }) {
   return (
     <>
@@ -47,7 +51,8 @@ export default function FormInput({
           type={type ?? "text"}
           name={fieldName}
           required={required}
-          defaultValue={state.data && state.data[fieldName].toString()}
+          value={value}
+          onChange={onChange}
           disabled={disabled}
         />
       </div>

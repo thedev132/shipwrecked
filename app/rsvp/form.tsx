@@ -4,11 +4,12 @@ import FormGroup from "@/components/form/FormGroup";
 import FormInput from "@/components/form/FormInput";
 import FormSelect from "@/components/form/FormSelect";
 import countries from "@/types/countries";
-import { save } from "./actions";
-import { useActionState, useEffect } from "react";
+import { save, FormSave } from "./actions";
+import { useActionState, useEffect, useState } from "react";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { signIn } from "next-auth/react";
+import Toast from "@/components/common/Toast";
 
 // Client Side Registration Form
 //
@@ -19,26 +20,72 @@ export default function Form({ hasSession }: { hasSession?: boolean }) {
     data: undefined,
     valid: false,
   });
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toastType, setToastType] = useState<'success' | 'error'>('error');
+  const [formData, setFormData] = useState({
+    "First Name": "",
+    "Last Name": "",
+    "Email": "",
+    "Birthday": ""
+  });
 
-  // If the state changes and the data is valid, redirect to the form completion page
+  // Update toast when state changes
   useEffect(() => {
-    if (state.valid) redirect("/rsvp/complete");
+    if (state.valid) {
+      setToastType('success');
+      setToastMessage("RSVP submitted successfully!");
+    } else if (state.errors) {
+      setToastType('error');
+      setToastMessage("Ooops - something went wrong.  Please try again later!");
+    }
   }, [state]);
+
+  // Handle form submission
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const data = new FormData();
+    Object.entries(formData).forEach(([key, value]) => {
+      data.append(key, value);
+    });
+    try {
+      await formAction(data);
+    } catch (error) {
+      console.error(error);
+      setToastType('error');
+      setToastMessage("Ooops - something went wrong.  Please try again later!");
+    }
+  };
+
+  const handleInputChange = (fieldName: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [fieldName]: value
+    }));
+  };
 
   return (
     <>
-      <div className="text-dark-brown bg-sand/60 border border-sand p-6 rounded-md w-full max-w-4xl backdrop-blur-md mb-2">
+      {toastMessage && (
+        <Toast 
+          message={toastMessage}
+          type={toastType}
+          onClose={() => setToastMessage(null)}
+        />
+      )}
+      <div className="text-dark-brown w-full max-w-4xl mb-2">
         <h1 className="text-4xl md:text-6xl font-bold mb-4">
           RSVP for Shipwrecked!
         </h1>
 
-        <form className="flex flex-col justify-center" action={formAction}>
+        <form className="flex flex-col justify-center" onSubmit={handleSubmit}>
           <div className="lg:flex justify-center">
             <FormInput
               fieldName="First Name"
               state={state}
               placeholder="Prophet"
               required
+              value={formData["First Name"]}
+              onChange={(e) => handleInputChange("First Name", e.target.value)}
             >
               First Name
             </FormInput>
@@ -47,6 +94,8 @@ export default function Form({ hasSession }: { hasSession?: boolean }) {
               state={state}
               placeholder="Orpheus"
               required
+              value={formData["Last Name"]}
+              onChange={(e) => handleInputChange("Last Name", e.target.value)}
             >
               Last Name
             </FormInput>
@@ -58,6 +107,8 @@ export default function Form({ hasSession }: { hasSession?: boolean }) {
               state={state}
               placeholder="orpheus@hackclub.com"
               required
+              value={formData["Email"]}
+              onChange={(e) => handleInputChange("Email", e.target.value)}
             >
               Email
             </FormInput>
@@ -67,12 +118,14 @@ export default function Form({ hasSession }: { hasSession?: boolean }) {
               state={state}
               placeholder=""
               required
+              value={formData["Birthday"]}
+              onChange={(e) => handleInputChange("Birthday", e.target.value)}
             >
               Birthday
             </FormInput>
           </div>
 
-          <div className="flex justify-end mt-2">
+          <div className="flex justify-center mt-2 pt-5">
             <button
               className="py-2 md:px-4 px-2 uppercase disabled:bg-dark-blue/20 bg-dark-blue/60 text-sand border border-sand whitespace-nowrap text-xs md:text-base transition hover:not-disabled:border-yellow backdrop-blur-sm rounded-full cursor-pointer"
               disabled={pending}

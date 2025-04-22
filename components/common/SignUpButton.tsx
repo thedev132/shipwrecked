@@ -32,7 +32,7 @@ export default function SignUpButton() {
       onClick={scrollToBottom}
     >
       <span className="flex items-center gap-3 flex-nowrap">
-        Sign Up
+        RSVP
         <Image
           src="/back-arrow.png"
           width={24}

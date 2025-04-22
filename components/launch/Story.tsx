@@ -1,6 +1,6 @@
 "use client";
-import { motion, useMotionValue, animate } from "motion/react";
-import { createContext, useEffect, useState } from "react";
+import { motion, useMotionValue, animate, AnimationPlaybackControls } from "motion/react";
+import { createContext, useEffect, useState, useRef } from "react";
 import Shore from "./Shore";
 import Info from "./Info";
 import Waves from "./Waves";
@@ -10,11 +10,13 @@ import SignUpButton from "@/components/common/SignUpButton";
 
 export const ScrollProgressContext = createContext<
   [number, (n: number, duration?: number) => void]
->([0, () => {}]);
+>([0, () => { }]);
 
 export default function Story() {
   const [scrollPercent, setScrollPercent] = useState(0);
   const motionValue = useMotionValue(scrollPercent);
+  // Fix the ref type to match the animation controls return type
+  const currentAnimationRef = useRef<AnimationPlaybackControls | null>(null);
 
   const sections = {
     shore: { start: 0, end: 0.25 },
@@ -66,12 +68,19 @@ export default function Story() {
   }, []);
 
   const scrollToPercent = (percent: number, duration?: number) => {
-    animate(motionValue, percent, {
+    // Cancel any existing animation
+    if (currentAnimationRef.current) {
+      currentAnimationRef.current.stop();
+    }
+
+    // Start new animation and store the control
+    currentAnimationRef.current = animate(motionValue, percent, {
       type: "spring",
       duration: duration || 5,
       ease: "easeIn", // 'cubic-bezier(0.83, 0, 0.17, 1)'
       bounce: 0,
     });
+
     // correct for scrollTop
     const scrollTop =
       percent *
@@ -112,33 +121,33 @@ export default function Story() {
             sections.info.start,
             sections.info.end
           ) && (
-            <Info
-              previous={sections.shore.end - WAVE_OFFSET}
-              next={sections.bay.start + WAVE_OFFSET}
-              start={sections.info.start}
-              end={sections.info.end}
-            />
-          )}
+              <Info
+                previous={sections.shore.end - WAVE_OFFSET}
+                next={sections.bay.start + WAVE_OFFSET}
+                start={sections.info.start}
+                end={sections.info.end}
+              />
+            )}
 
           {animateSectionIfWithinBounds(
             sections.bay.start,
             sections.bay.end
           ) && (
-            <Bay
-              previous={sections.bay.end - WAVE_OFFSET}
-              next={sections.cta.start + WAVE_OFFSET}
-              start={sections.bay.start}
-              end={sections.bay.end}
-            />
-          )}
+              <Bay
+                previous={sections.bay.end - WAVE_OFFSET}
+                next={sections.cta.start + WAVE_OFFSET}
+                start={sections.bay.start}
+                end={sections.bay.end}
+              />
+            )}
 
           {(animateSectionIfWithinBounds(
             sections.cta.start,
             sections.cta.end
           ) ||
             scrollPercent === 1) && (
-            <CallToAction previous={sections.bay.end - WAVE_OFFSET} />
-          )}
+              <CallToAction previous={sections.bay.end - WAVE_OFFSET} />
+            )}
 
           <Waves start={activeWaveBounds[0]} end={activeWaveBounds[1]} />
         </div>

@@ -5,6 +5,7 @@ import Image from "next/image";
 import { ScrollProgressContext } from "./Story";
 import Link from "next/link";
 import Form from "@/app/rsvp/form";
+import SignupProgress from "@/components/common/SignupProgress";
 
 // import { motion } from "motion/react";
 export default function CallToAction({ previous }:{ previous: number }) {
@@ -18,6 +19,9 @@ export default function CallToAction({ previous }:{ previous: number }) {
         backgroundPosition: "center",
       }}>
         <div className="w-screen h-screen flex flex-col items-center justify-center p-8 relative">
+          <div className="absolute top-[50px] left-1/2 transform -translate-x-1/2 z-50">
+            <SignupProgress />
+          </div>
           <div className="bg-sky-blue/30 border border-sky-blue p-6 rounded-md w-full max-w-4xl md:h-[50vh] backdrop-blur-sm flex flex-col justify-between text-center">
             <div className="flex-1 flex items-center justify-center">
               <Form />

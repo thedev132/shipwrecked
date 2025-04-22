@@ -1,19 +1,11 @@
 import { getRecordCount } from '@/lib/airtable';
-import fs from 'fs';
-import path from 'path';
+import { setCount, getCount } from './store';
 
-// Global variable to store the count
-let globalCount = 0;
-
-// Function to update the count file
-function updateCountFile(count: number) {
-  const filePath = path.join(process.cwd(), 'app/api/stats/count.json');
-  fs.writeFileSync(filePath, JSON.stringify({ count }, null, 2));
-}
+// Global variable to track if service is running
+let isServiceRunning = false;
 
 export class StatsService {
   private static instance: StatsService | null = null;
-  private isRunning: boolean = false;
   private intervalId: NodeJS.Timeout | null = null;
 
   private constructor() {}
@@ -26,20 +18,19 @@ export class StatsService {
     return StatsService.instance;
   }
 
-  public getLastCount(): number {
-    console.log('Getting lastCount:', globalCount);
-    return globalCount;
+  public async getLastCount(): Promise<number> {
+    return await getCount();
   }
 
   private async updateStats() {
     try {
       console.log('Fetching RSVP count...');
       const currentCount = await getRecordCount("RSVPs");
+      const lastCount = await getCount();
       
-      if (currentCount !== globalCount) {
-        console.log(`RSVP count changed: ${globalCount} -> ${currentCount}`);
-        globalCount = currentCount;
-        updateCountFile(currentCount);
+      if (currentCount !== lastCount) {
+        console.log(`RSVP count changed: ${lastCount} -> ${currentCount}`);
+        await setCount(currentCount);
       } else {
         console.log(`RSVP count remains at: ${currentCount}`);
       }
@@ -49,17 +40,17 @@ export class StatsService {
   }
 
   public async start() {
-    if (this.isRunning) {
+    if (isServiceRunning) {
       console.log('Stats service is already running');
       return;
     }
 
     console.log('Starting stats service...');
-    this.isRunning = true;
+    isServiceRunning = true;
 
     // Run immediately and wait for it to complete
     await this.updateStats();
-    console.log('Initial count fetched:', globalCount);
+    console.log('Initial count fetched:', await getCount());
 
     // Then run every 10 seconds
     this.intervalId = setInterval(() => this.updateStats(), 10000);
@@ -70,7 +61,7 @@ export class StatsService {
       clearInterval(this.intervalId);
       this.intervalId = null;
     }
-    this.isRunning = false;
+    isServiceRunning = false;
     console.log('Stats service stopped');
   }
 }

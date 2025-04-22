@@ -31,7 +31,11 @@ export default function Bay({ start, end, previous, next }:{ start: number, end:
       }}>
         <div className="w-screen h-screen flex flex-col items-end justify-end p-8 md:pb-20 relative">
           <div className="bg-sand/60 border border-sand p-6 rounded-md w-full max-w-4xl backdrop-blur-md text-dark-brown">
-            <h1 className="text-4xl md:text-6xl font-bold mb-4">The Bay</h1>
+            <h1 className="text-4xl md:text-6xl font-bold mb-4">
+              {scrollPercent < subsections.viral.start ? "The Bay, Part 1" :
+               scrollPercent < subsections.teamwork.start ? "The Bay, Part 2" :
+               "The Bay, Part 3"}
+            </h1>
 
             <AnimatePresence>
               {scrollPercent < subsections.intro.end && (

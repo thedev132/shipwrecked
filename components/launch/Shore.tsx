@@ -24,7 +24,7 @@ export default function Shore({ next }: { next: number }) {
         <div className="h-screen md:aspect-video">
           <div className="flex w-screen h-screen md:px-30 md:py-20 px-15 py-10 flex-col justify-start">
             <div className="px-0 py-0 rounded w-fit">
-              <Image src="/logo.svg" width={0} height={0} alt="Shipwrecked" className="md:w-100 w-70 p-5 h-auto translate-x-[-25px]" />
+              <Image src="/logo-outline.svg" width={0} height={0} alt="Shipwrecked" className="md:w-100 w-70 p-5 h-auto translate-x-[-25px]" />
               <div className="flex items-center">
                 <Image src="/calendar-icon.png" width={0} height={0} alt="Calendar Icon" className="h-[3em] w-auto py-auto"/>
                 <h2 className="md:text-3xl text-2xl font-bold text-white uppercase p-3 pl-1 w-fit text-outline-dark-blue">August 8 - 11, 2025</h2>
@@ -43,12 +43,13 @@ export default function Shore({ next }: { next: number }) {
             </div>
           </div>
         </div>
-        <div className="w-screen h-screen flex flex-col items-center justify-center p-8">
+        <div className="w-screen h-screen flex flex-col items-center justify-center px-5 m-0">
+          <Image src="/sand-logo.png" alt="" width={0} height={0} className="w-auto lg:h-[30vh] md:h-[25vh] h-[20vh] md:translate-x-[-10px] opacity-30 pb-10"  />
           <button onClick={() => {
             scrollToPercent(0.10);
           }}>
             <span className="sr-only">Go to next section</span>
-            <Image src="/bottle.png" alt="" style={{cursor: "pointer"}} width={690} height={403} className="h-auto md:w-[50vw] w-[75vw]"  />
+            <Image src="/bottle.png" alt="" style={{cursor: "pointer"}} width={690} height={403} className="h-auto lg:w-[50vw] w-[75vw]"  />
           </button>
           <div className="space-y-3 my-6">
             <div className="size-2 rounded-full bg-[#3B2715]"></div>
@@ -56,7 +57,7 @@ export default function Shore({ next }: { next: number }) {
             <div className="size-2 rounded-full bg-[#3B2715]"></div>
           </div>
           <h1 className="text-5xl font-bold mb-4 italic text-center text-[#3B2715]">Something washes up on the shore...</h1>
-          <p className="text-xl italic text-center text-[#3B2715]">(Click the bottle or scroll to continue)</p>
+          <p className="text-2xl italic text-center text-[#3B2715]">(Click the bottle or scroll to continue)</p>
         </div>
       </div>
     </motion.div>

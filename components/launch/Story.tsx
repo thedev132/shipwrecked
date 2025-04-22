@@ -6,6 +6,7 @@ import Info from "./Info";
 import Waves from "./Waves";
 import Bay from "./Bay";
 import CallToAction from "./CallToAction";
+import SignUpButton from "@/components/common/SignUpButton";
 
 export const ScrollProgressContext = createContext<
   [number, (n: number, duration?: number) => void]
@@ -93,6 +94,7 @@ export default function Story() {
 
   return (
     <ScrollProgressContext.Provider value={[scrollPercent, scrollToPercent]}>
+      <SignUpButton />
       <motion.div
         className="fixed w-full h-full"
         style={{

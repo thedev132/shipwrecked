@@ -48,7 +48,7 @@ export default function Info({ start, end, previous, next }: { start: number, en
             )}
             {scrollPercent >= middle && (
               <div className="flex gap-4">
-                <TriggerButton targetPercent={start} backwards></TriggerButton>
+                <TriggerButton targetPercent={middle-0.01} backwards></TriggerButton>
                 <TriggerButton targetPercent={next} waves>How do I get invited?</TriggerButton>
               </div>
             )}

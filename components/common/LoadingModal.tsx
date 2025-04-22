@@ -17,7 +17,6 @@ const LoadingModal: React.FC<LoadingModalProps> = ({
   const [showLoader, setShowLoader] = useState(false);
   
   const areImagesCached = async (): Promise<boolean> => {
-    console.log('Checking if images are cached:', imageUrls);
     try {
       // Check each image using fetch with only-if-cached
       const cacheChecks = imageUrls.map(url => 
@@ -26,10 +25,8 @@ const LoadingModal: React.FC<LoadingModalProps> = ({
           cache: 'only-if-cached',
           mode: 'same-origin'
         }).then(response => {
-          console.log(`Cache check for ${url}: HIT`);
           return true;
         }).catch(() => {
-          console.log(`Cache check for ${url}: MISS`);
           return false;
         })
       );
@@ -38,7 +35,6 @@ const LoadingModal: React.FC<LoadingModalProps> = ({
       
       // Return true if all images are found in cache
       const allCached = results.every(result => result === true);
-      console.log(`Cache check complete. All images cached: ${allCached}`);
       return allCached;
     } catch (error) {
       console.error('Error checking cache:', error);

@@ -17,6 +17,7 @@ export async function getRecords(tableName: string, options?: {
   filterByFormula?: string;
   sort?: { field: string; direction: 'asc' | 'desc' }[];
   maxRecords?: number;
+  count?: boolean;
 }): Promise<AirtableRecord[]> {
   try {
     const records = await base(tableName)
@@ -24,6 +25,7 @@ export async function getRecords(tableName: string, options?: {
         filterByFormula: options?.filterByFormula,
         sort: options?.sort,
         maxRecords: options?.maxRecords,
+        count: options?.count
       })
       .all();
     

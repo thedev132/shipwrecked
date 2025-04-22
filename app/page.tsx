@@ -52,14 +52,13 @@ export default function Home() {
     '/back-arrow.png'
   ];
 
-  const randomMessage = loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
 
   if (isLoading) {
     return (
       <LoadingModal 
-        onLoadComplete={handleLoadComplete}
-        title={randomMessage}
+        titles={loadingMessages}
         imageUrls={imageUrls}
+        onLoadComplete={handleLoadComplete}
       />
     );
   }

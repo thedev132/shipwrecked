@@ -4,17 +4,18 @@ import styles from './LoadingModal.module.css';
 
 interface LoadingModalProps {
   onLoadComplete: () => void;
-  title?: string;
+  titles: string[];
   imageUrls: string[];
 }
 
 const LoadingModal: React.FC<LoadingModalProps> = ({ 
   onLoadComplete, 
-  title = 'Loading...',
+  titles,
   imageUrls 
 }) => {
   const [progress, setProgress] = useState(0);
   const [showLoader, setShowLoader] = useState(false);
+  const [currentTitle, setCurrentTitle] = useState(titles[0]);
   
   const areImagesCached = async (): Promise<boolean> => {
     try {
@@ -95,12 +96,28 @@ const LoadingModal: React.FC<LoadingModalProps> = ({
     checkCacheAndLoad();
   }, [onLoadComplete, imageUrls]);
 
+  // Rotate through titles every 5 seconds
+  useEffect(() => {
+    if (!showLoader) return;
+    
+    const interval = setInterval(() => {
+      setCurrentTitle(prevTitle => {
+        // Get all titles except the current one
+        const otherTitles = titles.filter(t => t !== prevTitle);
+        // Pick a random one
+        return otherTitles[Math.floor(Math.random() * otherTitles.length)];
+      });
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [showLoader, titles]);
+
   if (!showLoader) return null;
 
   return (
     <div className={styles.modalOverlay}>
       <div className={styles.modalContent}>
-        <h2 className={styles.title}>{title}</h2>
+        <h2 className={styles.title}>{currentTitle}</h2>
         <div className={styles.spinner} />
         <div className={styles.progressBar}>
           <div 

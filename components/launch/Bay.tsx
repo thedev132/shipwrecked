@@ -41,7 +41,7 @@ export default function Bay({ start, end, previous, next }:{ start: number, end:
                 animate={{ opacity: 1 }}
                 className="text-base md:text-xl py-2"
               >
-                Through <span className="font-bold">The Bay</span>, you&apos;ll earn an invitation to Shipwrecked. In The Bay you will spend 60 hours making projects with the goal of making them <span className="font-bold">go viral</span>.
+                Through <span className="font-bold">The Bay</span>, you&apos;ll earn an invitation to Shipwrecked. In The Bay, you will spend 60 hours making projects with the goal of making them <span className="font-bold">go viral</span>.
               </motion.p>
               )}
 
@@ -65,7 +65,7 @@ export default function Bay({ start, end, previous, next }:{ start: number, end:
                 animate={{ opacity: 1 }}
                 className="text-base md:text-xl py-2"
               >
-                Every week, you can meet up with your friends either in person or over <Link href="https://pier.hackclub.com" className="link">The Pier</Link> - our video game-like digital meeting space to work! You are welcome — and encouraged — to team up with a friend to make a project! Just note that if you are working in a group, you all must log 60 hours respectively on <a href="https://hackatime.hackclub.com" className="link">Hackatime</a> towards your project.
+                Every week, you can meet up with your friends either in person or over <Link href="https://pier.hackclub.com" className="link">The Pier</Link>, our video game-like digital meeting space to work! You are welcome — and encouraged — to team up with a friend to make a project! Just note that if you are working in a group, you all must log 60 hours respectively on <a href="https://hackatime.hackclub.com" className="link">Hackatime</a> toward your project.
               </motion.p>
               )}
             </AnimatePresence>

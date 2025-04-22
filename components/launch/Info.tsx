@@ -27,7 +27,7 @@ export default function Info({ start, end, previous, next }: { start: number, en
             <AnimatePresence>
               {/* 0.45 - 0.50 */}
               {scrollPercent < middle && <motion.p key="summary" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-base md:text-lg py-2">
-                On <span className="font-bold">August 8-11</span>, you and 150 other students will gather on <span className="font-bold">Cathleen Stone Island in the Boston Harbor</span> for a once in a lifetime, <span className="font-bold">4-day story-based hackathon</span>!
+                On <span className="font-bold">August 8-11</span>, you and 130 other students will gather on <span className="font-bold">Cathleen Stone Island in the Boston Harbor</span> for a once in a lifetime, <span className="font-bold">4-day story-based hackathon</span>!
                 <br /><br />
                 As soon as you get there, you&apos;ll all start working together to survive on the island you&apos;ve been stranded on.
               </motion.p>}
@@ -35,7 +35,7 @@ export default function Info({ start, end, previous, next }: { start: number, en
               
               {/* 0.5 - 0.55 */}
               {scrollPercent >= middle && <motion.p key="agenda" initial={{ opacity: 0 }} animate={{ opacity: 1 }}  className="text-base md:text-lg py-2">
-                Once we&apos;re on the island, everyone will work in smaller groups and complete quests. These will be centered around interacting with the world around you: helping the villagers develop software or hardware projects that help them sell their produce, helping the pirates plan their routes more effectively, or building projects to help your fellow shipwreck-mates organize your efforts more effectively <em >(not literally, of course... there&apos;s no pirates or villagers in the Boston Harbor. This is similar to Dungeons & Dragons!)</em>
+                Once we&apos;re on the island, everyone will work in smaller groups and complete quests. These will be centered around interacting with the world around you: helping the villagers develop software or hardware projects that help them sell their produce, helping the pirates plan their routes more effectively, or building projects to help your fellow shipwreck-mates organize your efforts more effectively. <em >(Not literally, of course... there are no pirates or villagers in the Boston Harbor. This is similar to Dungeons & Dragons!)</em>
               </motion.p>}
             </AnimatePresence>
           </div>

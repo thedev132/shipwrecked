@@ -35,7 +35,7 @@ export default function Info({ start, end, previous, next }: { start: number, en
               
               {/* 0.5 - 0.55 */}
               {scrollPercent >= middle && <motion.p key="agenda" initial={{ opacity: 0 }} animate={{ opacity: 1 }}  className="text-base md:text-lg py-2">
-                Once we&apos;re on the island, everyone will work in smaller groups and complete quests. These will be centered around interacting with the world around you: helping the villagers develop software or hardware projects that help them sell their produce, helping the pirates plan their routes more effectively, or building projects to help your fellow shipwreck-mates organize your efforts more effectively. <em >(Not literally, of course... there are no pirates or villagers in the Boston Harbor. This is similar to Dungeons & Dragons!)</em>
+                Once we&apos;re on the island, everyone will work in smaller groups and complete quests. These will be centered around interacting with the world around you: helping the island dwellers develop software or hardware projects that help them sell their produce, helping the pirates plan their routes more effectively, or building projects to help your fellow shipwreck-mates organize your efforts more effectively. <em >(Not literally, of course... there are no pirates or island in the Boston Harbor. This is similar to Dungeons & Dragons!)</em>
               </motion.p>}
             </AnimatePresence>
           </div>

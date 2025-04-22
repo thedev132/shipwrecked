@@ -25,12 +25,6 @@ export default function Faq({ previous }:{ previous: number }) {
               NOTE: You can find additional questions answered on the <Link className="link" href="/info">Shipwrecked Information Docs</Link>.
             </div>
           </div>
-
-          <button className="absolute top-5 bottom-auto left-5 text-6xl" onClick={() => {
-            scrollToPercent(previous);
-          }}>
-            <Image src="/back-arrow.png" alt="arrow" width={80} height={80} className="w-20 h-20" />
-          </button>
         </div>
       </div>
     </div>

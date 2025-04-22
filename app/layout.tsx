@@ -41,6 +41,18 @@ export default function RootLayout({
         <link rel="stylesheet" href="https://use.typekit.net/mfm5adk.css" />
       </head>
       <body className={`${poppins.variable} ${baloo.variable}`}>
+        <img 
+          style={{ 
+            position: 'fixed', 
+            top: '20px', 
+            left: '0', 
+            border: '0', 
+            width: '180px', 
+            zIndex: '999'
+          }} 
+          src="https://assets.hackclub.com/banners/2025.svg" 
+          alt="Hack Club"
+        />
         <SignUpButton />
         {children}
       </body>

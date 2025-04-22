@@ -8,8 +8,9 @@ export default function SignupProgress() {
   useEffect(() => {
     const fetchCount = async () => {
       try {
-        const response = await fetch('/api/stats');
+        const response = await fetch('/api/stats/count');
         const data = await response.json();
+        console.log("client received count", data);
         setCount(data.count);
       } catch (error) {
         console.error('Error fetching signup count:', error);
@@ -19,8 +20,8 @@ export default function SignupProgress() {
     // Fetch immediately
     fetchCount();
 
-    // Then fetch every 30 seconds
-    const interval = setInterval(fetchCount, 30000);
+    // Then fetch every 10 seconds
+    const interval = setInterval(fetchCount, 10000);
 
     return () => clearInterval(interval);
   }, []);

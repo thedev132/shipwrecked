@@ -1,40 +1,88 @@
-import { getRecords } from '@/lib/airtable';
+import { getRecordCount } from '@/lib/airtable';
+import fs from 'fs';
+import path from 'path';
 
-let lastCount = 0;
-let isRunning = false;
+// Global variable to store the count
+let globalCount = 0;
 
-export async function startStatsService() {
-  if (isRunning) return;
-  isRunning = true;
+// Function to update the count file
+function updateCountFile(count: number) {
+  const filePath = path.join(process.cwd(), 'app/api/stats/count.json');
+  fs.writeFileSync(filePath, JSON.stringify({ count }, null, 2));
+}
 
-  const updateStats = async () => {
+export class StatsService {
+  private static instance: StatsService | null = null;
+  private isRunning: boolean = false;
+  private intervalId: NodeJS.Timeout | null = null;
+
+  private constructor() {}
+
+  public static getInstance(): StatsService {
+    if (!StatsService.instance) {
+      console.log("created new stats service!");
+      StatsService.instance = new StatsService();
+    }
+    return StatsService.instance;
+  }
+
+  public getLastCount(): number {
+    console.log('Getting lastCount:', globalCount);
+    return globalCount;
+  }
+
+  private async updateStats() {
     try {
       console.log('Fetching RSVP count...');
-      const records = await getRecords("RSVPs", {
-        filterByFormula: "",
-        sort: [],
-        maxRecords: 1,
-        count: true
-      });
+      const currentCount = await getRecordCount("RSVPs");
       
-      const currentCount = records.length;
-      if (currentCount !== lastCount) {
-        console.log(`RSVP count changed: ${lastCount} -> ${currentCount}`);
-        lastCount = currentCount;
+      if (currentCount !== globalCount) {
+        console.log(`RSVP count changed: ${globalCount} -> ${currentCount}`);
+        globalCount = currentCount;
+        updateCountFile(currentCount);
       } else {
         console.log(`RSVP count remains at: ${currentCount}`);
       }
     } catch (error) {
       console.error('Error in stats service:', error);
     }
-  };
+  }
 
-  // Run immediately on startup
-  await updateStats();
+  public async start() {
+    if (this.isRunning) {
+      console.log('Stats service is already running');
+      return;
+    }
 
-  // Then run every 15 seconds
-  setInterval(updateStats, 15000);
+    console.log('Starting stats service...');
+    this.isRunning = true;
+
+    // Run immediately and wait for it to complete
+    await this.updateStats();
+    console.log('Initial count fetched:', globalCount);
+
+    // Then run every 10 seconds
+    this.intervalId = setInterval(() => this.updateStats(), 10000);
+  }
+
+  public stop() {
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+      this.intervalId = null;
+    }
+    this.isRunning = false;
+    console.log('Stats service stopped');
+  }
 }
 
-// Start the service when this module is imported
-startStatsService().catch(console.error); 
+// Export a function to start the service
+export async function startStatsService() {
+  const service = StatsService.getInstance();
+  await service.start();
+}
+
+// Export a function to stop the service
+export function stopStatsService() {
+  const service = StatsService.getInstance();
+  service.stop();
+} 

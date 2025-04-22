@@ -3,6 +3,7 @@ import { Baloo_Da_2, Poppins } from "next/font/google";
 import "./globals.css";
 import "@/app/info/info.css";
 import SignUpButton from "@/components/common/SignUpButton";
+import "@/app/api/stats/init";
 
 const poppins = Poppins({
   variable: "--font-poppins",

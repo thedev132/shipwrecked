@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Baloo_Da_2, Poppins } from "next/font/google";
 import "./globals.css";
 import "@/app/info/info.css";
-import SignUpButton from "@/components/common/SignUpButton";
 import "@/app/api/stats/init";
 
 const poppins = Poppins({
@@ -45,7 +44,6 @@ export default function RootLayout({
         <link rel="stylesheet" href="https://use.typekit.net/mfm5adk.css" />
       </head>
       <body className={`${poppins.variable} ${baloo.variable}`}>
-        <SignUpButton />
         {children}
       </body>
     </html>

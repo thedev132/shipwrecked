@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Story from "@/components/launch/Story";
 import { ReactLenis } from "lenis/react";
 import LoadingModal from "@/components/common/LoadingModal";
@@ -30,10 +30,25 @@ const loadingMessages = [
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
+  const [scrollPercent, setScrollPercent] = useState(0);
 
   const handleLoadComplete = () => {
     setIsLoading(false);
   };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      const scrollHeight = document.documentElement.scrollHeight;
+      const clientHeight = document.documentElement.clientHeight;
+      setScrollPercent(scrollTop / (scrollHeight - clientHeight));
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const bannerOpacity = Math.max(0, Math.min(1, (0.75 - scrollPercent) / 0.1));
 
   const imageUrls = [
     // Wave images
@@ -76,6 +91,8 @@ export default function Home() {
                 border: "0",
                 width: "180px",
                 zIndex: "999",
+                opacity: bannerOpacity,
+                transition: "opacity 0.2s ease-out"
               }}
               src="https://assets.hackclub.com/banners/2025.svg"
               alt="Hack Club"

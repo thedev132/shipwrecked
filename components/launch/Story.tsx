@@ -99,8 +99,6 @@ export default function Story() {
     ([start, end]) => scrollPercent >= start && scrollPercent <= end
   ) || [undefined, undefined];
 
-  console.log(scrollPercent);
-
   return (
     <ScrollProgressContext.Provider value={[scrollPercent, scrollToPercent]}>
       <SignUpButton />

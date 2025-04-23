@@ -1,9 +1,7 @@
 'use client'
 
 import { useContext } from "react";
-import Image from "next/image";
 import { ScrollProgressContext } from "./Story";
-import Link from "next/link";
 import Form from "@/app/rsvp/form";
 import SignupProgress from "@/components/common/SignupProgress";
 

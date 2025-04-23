@@ -18,29 +18,8 @@ const LoadingModal: React.FC<LoadingModalProps> = ({
   const [currentTitle, setCurrentTitle] = useState(titles[0]);
   
   const areImagesCached = async (): Promise<boolean> => {
-    try {
-      // Check each image using fetch with only-if-cached
-      const cacheChecks = imageUrls.map(url => 
-        fetch(url, { 
-          method: 'HEAD',
-          cache: 'only-if-cached',
-          mode: 'same-origin'
-        }).then(response => {
-          return true;
-        }).catch(() => {
-          return false;
-        })
-      );
-
-      const results = await Promise.all(cacheChecks);
-      
-      // Return true if all images are found in cache
-      const allCached = results.every(result => result === true);
-      return allCached;
-    } catch (error) {
-      console.error('Error checking cache:', error);
-      return false;
-    }
+    // Always return false to force showing the loader
+    return false;
   };
 
   const preloadImages = async () => {

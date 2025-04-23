@@ -136,6 +136,10 @@ export default function Form({ hasSession, prefillData }: { hasSession?: boolean
           RSVP for Shipwrecked!
         </h1>
 
+        <p className="text-center text-sm md:text-base mb-3 md:mb-6 text-dark-brown/80">
+          Shipwrecked is for teenagers ages 18 and under.
+        </p>
+
         <form className="flex flex-col justify-center" onSubmit={handleSubmit}>
           <div className="lg:flex justify-center gap-1 md:gap-2">
             <FormInput

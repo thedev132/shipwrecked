@@ -5,7 +5,7 @@ import FormInput from "@/components/form/FormInput";
 import FormSelect from "@/components/form/FormSelect";
 import countries from "@/types/countries";
 import { save, FormSave } from "./actions";
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useState, startTransition } from "react";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { signIn } from "next-auth/react";
@@ -29,31 +29,53 @@ export default function Form({ hasSession }: { hasSession?: boolean }) {
     "Email": "",
     "Birthday": ""
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Update toast when state changes
   useEffect(() => {
     if (state.valid) {
+      console.log('Form submission successful:', formData);
       setToastType('success');
       setToastMessage("RSVP submitted successfully!");
+      // Clear form data on success
+      setFormData({
+        "First Name": "",
+        "Last Name": "",
+        "Email": "",
+        "Birthday": ""
+      });
+      setIsSubmitting(false);
     } else if (state.errors) {
+      console.log('Form submission failed:', state.errors);
       setToastType('error');
       setToastMessage("Ooops - something went wrong.  Please try again later!");
+      setIsSubmitting(false);
     }
   }, [state]);
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (isSubmitting) {
+      console.log('Prevented duplicate submission attempt');
+      return;
+    }
+    
+    console.log('Starting form submission:', formData);
+    setIsSubmitting(true);
     const data = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
       data.append(key, value);
     });
     try {
-      await formAction(data);
+      startTransition(() => {
+        formAction(data);
+      });
     } catch (error) {
-      console.error(error);
+      console.error('Form submission error:', error);
       setToastType('error');
       setToastMessage("Ooops - something went wrong.  Please try again later!");
+      setIsSubmitting(false);
     }
   };
 
@@ -128,11 +150,12 @@ export default function Form({ hasSession }: { hasSession?: boolean }) {
 
           <div className="flex justify-center mt-0 md:mt-2 pt-1 md:pt-5">
             <button
-              className="py-1 md:py-2 md:px-4 px-2 uppercase disabled:bg-dark-blue/20 bg-dark-blue/60 text-sand border border-sand whitespace-nowrap text-xs md:text-base transition hover:not-disabled:border-yellow backdrop-blur-sm rounded-full cursor-pointer"
-              disabled={pending}
+              className="py-1 md:py-2 md:px-4 px-2 uppercase disabled:bg-dark-blue/20 bg-dark-blue/60 text-sand border border-sand whitespace-nowrap text-xs md:text-base transition hover:not-disabled:border-yellow backdrop-blur-sm rounded-full cursor-pointer disabled:cursor-not-allowed"
+              disabled={isSubmitting}
+              type="submit"
             >
               <span className="flex items-center gap-1 flex-nowrap">
-                Submit
+                {isSubmitting ? "Submitting..." : "Submit"}
                 <Image
                   src="/mark-check.svg"
                   width={12}
@@ -145,8 +168,26 @@ export default function Form({ hasSession }: { hasSession?: boolean }) {
           </div>
         </form>
       </div>
-      <div className="text-center px-2 text-sm sm:text-base">
-        <span className="font-bold text-black">NOTE:</span> For more info, see <Link className="link" href="/info">FAQ's</Link>
+      <div className="text-center px-2 text-sm sm:text-base mt-2">
+        <div
+          className="inline-block rounded-lg px-4 py-2 shadow-sm border"
+          style={{
+            background: "#f5e018",
+            borderColor: "#e49773",
+          }}
+        >
+          <span className="font-bold" style={{ color: "#007bbd" }}>NOTE:</span> For more info, see{" "}
+          <Link
+            className="underline font-semibold"
+            href="/info"
+            style={{
+              color: "#007bbd",
+              textDecorationColor: "#47D1f6",
+            }}
+          >
+            FAQ&apos;s
+          </Link>
+        </div>
       </div>
     </>
   );

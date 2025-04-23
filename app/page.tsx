@@ -36,10 +36,10 @@ function SearchParamsHandler({ children }: { children: (prefillData: PrefillData
   const [prefillData, setPrefillData] = useState<PrefillData>({});
 
   useEffect(() => {
-    const firstName = searchParams.get('first');
-    const lastName = searchParams.get('last');
-    const email = searchParams.get('email');
-    const birthdayISO = searchParams.get('birthday');
+    const firstName = searchParams.get('first')?.trim();
+    const lastName = searchParams.get('last')?.trim();
+    const email = searchParams.get('email')?.trim();
+    const birthdayISO = searchParams.get('birthday')?.trim();
 
     const formattedBirthday = birthdayISO ? birthdayISO.split('T')[0] : null;
 

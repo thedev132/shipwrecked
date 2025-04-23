@@ -24,8 +24,8 @@ export default function FormInput({
 }) {
   return (
     <>
-      <div className="my-5 w-full px-3 sm:px-4">
-        <label className="text-lg font-semibold text-left">
+      <div className="md:my-5 my-4 w-full px-3 sm:px-4">
+        <label className="md:text-lg text-base font-semibold text-left">
           {children}
           {required && <p className="text-red-500 inline">*</p>}
         </label>
@@ -46,7 +46,7 @@ export default function FormInput({
         <br />
 
         <input
-          className="w-full px-3 sm:px-4 py-2 bg-gray-100 disabled:bg-gray-200 rounded outline-1 outline-gray-200"
+          className="md:text-base text-sm w-full px-3 sm:px-4 md:py-2 py-1.5 bg-gray-100 disabled:bg-gray-200 rounded outline-1 outline-gray-200"
           placeholder={placeholder}
           type={type ?? "text"}
           name={fieldName}

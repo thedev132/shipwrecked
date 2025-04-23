@@ -1,12 +1,11 @@
 "use client";
-import { motion, useMotionValue, animate, AnimationPlaybackControls } from "motion/react";
+import { motion, useMotionValue, animate } from "motion/react";
 import { createContext, useEffect, useState, useRef } from "react";
 import Shore from "./Shore";
 import Info from "./Info";
 import Waves from "./Waves";
 import Bay from "./Bay";
 import CallToAction from "./CallToAction";
-import SignUpButton from "@/components/common/SignUpButton";
 
 export const ScrollProgressContext = createContext<
   [number, (n: number, duration?: number) => void]
@@ -15,8 +14,8 @@ export const ScrollProgressContext = createContext<
 export default function Story() {
   const [scrollPercent, setScrollPercent] = useState(0);
   const motionValue = useMotionValue(scrollPercent);
-  // Fix the ref type to match the animation controls return type
-  const currentAnimationRef = useRef<AnimationPlaybackControls | null>(null);
+  // Add reference to track current animation
+  const currentAnimationRef = useRef(null);
 
   const sections = {
     shore: { start: 0, end: 0.25 },
@@ -101,7 +100,6 @@ export default function Story() {
 
   return (
     <ScrollProgressContext.Provider value={[scrollPercent, scrollToPercent]}>
-      <SignUpButton />
       <motion.div
         className="fixed w-full h-full"
         style={{

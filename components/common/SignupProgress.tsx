@@ -33,6 +33,7 @@ export default function SignupProgress() {
 
   return (
     <div className="bg-sand/60 border border-sand p-4 rounded-md backdrop-blur-md text-dark-brown mb-4">
+      <h2 className="text-center">Shipwrecked unlocks at 5,000 signups!</h2>
       <p className="text-sm sm:text-base mb-2">
         <span className="font-bold">{count}</span> people have signed up so far!
       </p>

@@ -6,6 +6,7 @@ import Info from "./Info";
 import Waves from "./Waves";
 import Bay from "./Bay";
 import CallToAction from "./CallToAction";
+import TriggerButton from "./TriggerButton";
 
 export const ScrollProgressContext = createContext<
   [number, (n: number, duration?: number) => void]
@@ -107,6 +108,11 @@ export default function Story() {
           left: 0,
         }}
       >
+        {scrollPercent < sections.cta.start && (
+          <div className="absolute top-8 right-8 z-50">
+            <TriggerButton targetPercent={1} waves>Sign up</TriggerButton>
+          </div>
+        )}
         <div>
           {animateSectionIfWithinBounds(
             sections.shore.start,

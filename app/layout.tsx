@@ -19,17 +19,25 @@ const baloo = Baloo_Da_2({
 export const metadata: Metadata = {
   title: "Shipwrecked",
   description:
-    "Join us for an unforgettable four days of hacking and adventure at Shipwrecked!",
+    "Shipwrecked is a 130 person, Flagship Hackathon run by Hack Club happening this summer, August 8-11th on Cathleen Stone Island in the Boston harbor.",
   openGraph: {
     title: "Shipwrecked",
     description:
-      "Join us for an unforgettable four days of hacking and adventure at Shipwrecked!",
+      "Shipwrecked is a 130 person, Flagship Hackathon run by Hack Club happening this summer, August 8-11th on Cathleen Stone Island in the Boston harbor.",
     siteName: "Shipwrecked",
+    images: [
+      {
+        url: '/launchImgSmaller.jpg', 
+        alt: 'Shipwrecked Hackathon dates and location', 
+      },
+    ],
   },
   twitter: {
+    card: "summary_large_image", // Use summary_large_image for image previews
     title: "Shipwrecked",
     description:
-      "Join us for an unforgettable four days of hacking and adventure at Shipwrecked!",
+      "Shipwrecked is a 130 person, Flagship Hackathon run by Hack Club happening this summer, August 8-11th on Cathleen Stone Island in the Boston harbor.",
+    images: ['/launchImgSmaller.jpg'], // Path to your image
   },
 };
 

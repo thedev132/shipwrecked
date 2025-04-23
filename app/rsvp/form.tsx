@@ -145,8 +145,26 @@ export default function Form({ hasSession }: { hasSession?: boolean }) {
           </div>
         </form>
       </div>
-      <div className="text-center px-2 text-sm sm:text-base">
-        <span className="font-bold text-black">NOTE:</span> For more info, see <Link className="link" href="/info">FAQ's</Link>
+      <div className="text-center px-2 text-sm sm:text-base mt-2">
+        <div
+          className="inline-block rounded-lg px-4 py-2 shadow-sm border"
+          style={{
+            background: "#f5e018",
+            borderColor: "#e49773",
+          }}
+        >
+          <span className="font-bold" style={{ color: "#007bbd" }}>NOTE:</span> For more info, see{" "}
+          <Link
+            className="underline font-semibold"
+            href="/info"
+            style={{
+              color: "#007bbd",
+              textDecorationColor: "#47D1f6",
+            }}
+          >
+            FAQ&apos;s
+          </Link>
+        </div>
       </div>
     </>
   );

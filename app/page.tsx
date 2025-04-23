@@ -4,6 +4,8 @@ import Story from "@/components/launch/Story";
 import { ReactLenis } from "lenis/react";
 import LoadingModal from "@/components/common/LoadingModal";
 import Link from "next/link";
+import { useSearchParams } from 'next/navigation';
+import { PrefillData } from "@/types/prefill";
 
 const loadingMessages = [
   "Swabbing the decks...",
@@ -33,6 +35,26 @@ export default function Home() {
   const [scrollPercent, setScrollPercent] = useState(0);
   const isLocalEnv = process.env.NODE_ENV === 'development';
 
+  const searchParams = useSearchParams();
+  const [prefillData, setPrefillData] = useState<PrefillData>({});
+
+  useEffect(() => {
+    const firstName = searchParams.get('first');
+    const lastName = searchParams.get('last');
+    const email = searchParams.get('email');
+    const birthdayISO = searchParams.get('birthday');
+
+    const formattedBirthday = birthdayISO ? birthdayISO.split('T')[0] : null;
+
+    setPrefillData({
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      birthday: formattedBirthday,
+    });
+    console.log("Prefill Data from URL:", { firstName, lastName, email, birthday: formattedBirthday });
+  }, [searchParams]);
+
   const handleLoadComplete = () => {
     setIsLoading(false);
   };
@@ -42,17 +64,18 @@ export default function Home() {
       const scrollTop = window.scrollY;
       const scrollHeight = document.documentElement.scrollHeight;
       const clientHeight = document.documentElement.clientHeight;
-      setScrollPercent(scrollTop / (scrollHeight - clientHeight));
+      const effectiveScrollHeight = scrollHeight - clientHeight;
+      setScrollPercent(effectiveScrollHeight > 0 ? scrollTop / effectiveScrollHeight : 0);
     };
 
     window.addEventListener("scroll", handleScroll);
+    handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const bannerOpacity = Math.max(0, Math.min(1, (0.75 - scrollPercent) / 0.1));
 
   const imageUrls = [
-    // Essential UI elements
     "/logo.png",
     "/logo-outline.svg",
     "/calendar-icon.png",
@@ -60,9 +83,7 @@ export default function Home() {
     "/sand-logo.png",
     "/bottle.png",
     "/back-arrow.png",
-    // Background images
     "/shore.webp",
-    // All wave images (preload to avoid jumpiness)
     ...Array.from({ length: 10 }, (_, i) => `/waves/${i + 1}.webp`),
   ];
 
@@ -114,7 +135,7 @@ export default function Home() {
               LOCAL
             </div>
           )}
-          <Story />
+          <Story prefillData={prefillData || {}} />
         </main>
       </div>
     </ReactLenis>

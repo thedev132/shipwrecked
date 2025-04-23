@@ -14,7 +14,7 @@ export default function CallToAction({ previous }:{ previous: number }) {
   return (
     <div className="fixed inset-0 z-0">
       <div className="h-screen w-screen aspect-video flex" style={{
-        backgroundImage: `url('/faq.jpg')`,
+        backgroundImage: `url('/faq.webp')`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}>

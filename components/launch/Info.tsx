@@ -16,7 +16,7 @@ export default function Info({ start, end, previous, next }: { start: number, en
   return (
     <div className="fixed inset-0 z-0">
       <div className="h-screen w-screen aspect-video flex " style={{
-        backgroundImage: `url('/hut.jpg')`,
+        backgroundImage: `url('/hut.webp')`,
         backgroundSize: "cover",
         backgroundPosition: "right center",
       }}>

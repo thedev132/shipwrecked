@@ -16,7 +16,7 @@ export default function Shore({ next }: { next: number }) {
       <div className="h-screen w-screen"
         style={{
           height: "200vh",
-          backgroundImage: `url('/shore.jpg')`,
+          backgroundImage: `url('/shore.webp')`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}

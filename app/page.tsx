@@ -51,21 +51,18 @@ export default function Home() {
   const bannerOpacity = Math.max(0, Math.min(1, (0.75 - scrollPercent) / 0.1));
 
   const imageUrls = [
-    // Wave images
-    ...Array.from({ length: 10 }, (_, i) => `/waves/${i + 1}.png`),
-    // Other large files
-    "/signatures.png",
-    "/Key-personel.jpg",
-    "/shore.jpg",
+    // Essential UI elements
     "/logo.png",
-    "/hut.jpg",
-    "/location-icon.png",
-    "/faq.jpg",
-    "/bottlebig.png",
+    "/logo-outline.svg",
     "/calendar-icon.png",
+    "/location-icon.png",
+    "/sand-logo.png",
     "/bottle.png",
-    "/bay.jpg",
     "/back-arrow.png",
+    // Background images
+    "/shore.webp",
+    // All wave images (preload to avoid jumpiness)
+    ...Array.from({ length: 10 }, (_, i) => `/waves/${i + 1}.webp`),
   ];
 
   if (isLoading) {

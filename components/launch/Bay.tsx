@@ -56,7 +56,7 @@ export default function Bay({ start, end, previous, next }:{ start: number, end:
   return (
     <div className={`fixed inset-0 z-0 ${isIOS ? 'transform-gpu' : ''}`}>
       <div className="h-screen w-screen aspect-video flex" style={{
-        backgroundImage: `url('/bay.jpg')`,
+        backgroundImage: `url('/bay.webp')`,
         backgroundSize: "cover",
         backgroundPosition: "center right",
         ...(isIOS ? { transform: 'translateZ(0)', willChange: 'transform' } : {})

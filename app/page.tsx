@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Story from "@/components/launch/Story";
 import { ReactLenis } from "lenis/react";
 import LoadingModal from "@/components/common/LoadingModal";
@@ -30,11 +30,8 @@ const loadingMessages = [
   "Preparing the plank...",
 ];
 
-export default function Home() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [scrollPercent, setScrollPercent] = useState(0);
-  const isLocalEnv = process.env.NODE_ENV === 'development';
-
+// Extract the search params logic to a separate client component
+function SearchParamsHandler({ children }: { children: (prefillData: PrefillData) => React.ReactNode }) {
   const searchParams = useSearchParams();
   const [prefillData, setPrefillData] = useState<PrefillData>({});
 
@@ -54,6 +51,14 @@ export default function Home() {
     });
     console.log("Prefill Data from URL:", { firstName, lastName, email, birthday: formattedBirthday });
   }, [searchParams]);
+
+  return <>{children(prefillData)}</>;
+}
+
+export default function Home() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [scrollPercent, setScrollPercent] = useState(0);
+  const isLocalEnv = process.env.NODE_ENV === 'development';
 
   const handleLoadComplete = () => {
     setIsLoading(false);
@@ -135,7 +140,11 @@ export default function Home() {
               LOCAL
             </div>
           )}
-          <Story prefillData={prefillData || {}} />
+          <Suspense fallback={<Story prefillData={{}} />}>
+            <SearchParamsHandler>
+              {(prefillData) => <Story prefillData={prefillData || {}} />}
+            </SearchParamsHandler>
+          </Suspense>
         </main>
       </div>
     </ReactLenis>

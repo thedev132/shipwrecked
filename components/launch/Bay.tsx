@@ -45,7 +45,7 @@ export default function Bay({ start, end, previous, next }:{ start: number, end:
                 animate={{ opacity: 1 }}
                 className="text-base md:text-xl py-2"
               >
-                Through <span className="font-bold">The Bay</span>, you&apos;ll earn an invitation to Shipwrecked. In The Bay, you will spend 60 hours making 4 projects (20 hours each) with the goal of making them <span className="font-bold">go viral</span>.
+                Through <span className="font-bold">The Bay</span>, you&apos;ll earn an invitation to Shipwrecked. In The Bay, you will spend 60 hours making 4 projects (about 15 hours each) with the goal of making them <span className="font-bold">go viral</span>.
               </motion.p>
               )}
 

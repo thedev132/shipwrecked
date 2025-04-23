@@ -13,7 +13,6 @@ services:
       - ${BIND_PORT:-9991}:9991
     environment:
       - NODE_ENV=production
-      - SERVICE_FQDN_SHIPWRECKED_9991
     deploy:
       resources:
         limits:

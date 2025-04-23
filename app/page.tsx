@@ -31,6 +31,7 @@ const loadingMessages = [
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [scrollPercent, setScrollPercent] = useState(0);
+  const isLocalEnv = process.env.NODE_ENV === 'development';
 
   const handleLoadComplete = () => {
     setIsLoading(false);
@@ -95,6 +96,24 @@ export default function Home() {
               alt="Hack Club"
             />
           </Link>
+          {isLocalEnv && (
+            <div
+              style={{
+                position: "fixed",
+                bottom: "20px",
+                right: "20px",
+                backgroundColor: "rgba(0, 0, 0, 0.7)",
+                color: "white",
+                padding: "8px 16px",
+                borderRadius: "4px",
+                fontSize: "14px",
+                zIndex: "999",
+                fontFamily: "var(--font-poppins)"
+              }}
+            >
+              LOCAL
+            </div>
+          )}
           <Story />
         </main>
       </div>

@@ -22,7 +22,7 @@ export default function Info({ start, end, previous, next }: { start: number, en
       }}>
         <div className="w-screen h-screen flex flex-col items-start justify-center p-8 relative text-dark-brown">
           <div className="bg-sand/60 border border-sand p-6 rounded-md w-full max-w-4xl backdrop-blur-md">
-            <h1 className="text-4xl md:text-6xl font-bold mb-4">What&apos;s Shipwrecked?</h1>
+            <h1 className="text-4xl md:text-6xl font-bold mb-4">What&apos;s Hack Club Shipwrecked?</h1>
 
             <AnimatePresence>
               {/* 0.45 - 0.50 */}
@@ -48,7 +48,7 @@ export default function Info({ start, end, previous, next }: { start: number, en
             )}
             {scrollPercent >= middle && (
               <div className="flex gap-4">
-                <TriggerButton targetPercent={start} backwards></TriggerButton>
+                <TriggerButton targetPercent={middle-0.01} backwards></TriggerButton>
                 <TriggerButton targetPercent={next} waves>How do I get invited?</TriggerButton>
               </div>
             )}

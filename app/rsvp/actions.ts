@@ -1,7 +1,7 @@
 "use server";
 
 import { opts } from "@/app/api/auth/[...nextauth]/route";
-import { createRecord } from "@/lib/airtable";
+import { createRecord, getRecords } from "@/lib/airtable";
 import { getServerSession } from "next-auth";
 import { z } from "zod";
 
@@ -25,6 +25,16 @@ export type FormSave = {
     data: EntryData | undefined,
     valid: boolean
 };
+
+// Check if the email is already RSVPed
+async function isEmailRSVPed(email: string): Promise<boolean> {
+    const records = await getRecords("RSVPs", {
+        filterByFormula: `Email = '${email}'`,
+        sort: [],
+        maxRecords: 1,
+    });
+    return records.length > 0;
+}
 
 /**
  * Parses the form fields and saves to airtable
@@ -83,6 +93,13 @@ export async function save(state: FormSave, payload: FormData): Promise<FormSave
         // If neither a session nor the form data contain an email, return prematurily
         if (!newEntry["Email"])
             return { errors: { Email: ["An email is required!"] }, data: undefined, valid: false }
+
+        // Check if email is already RSVPed
+        if (await isEmailRSVPed(newEntry["Email"] as string)) return {
+            errors: { _form: ["This email is already RSVPed!"] },
+            data: newEntry,
+            valid: false
+        }
 
         try {
             // Create airtable record

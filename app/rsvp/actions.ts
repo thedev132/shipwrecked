@@ -5,6 +5,7 @@ import { createRecord, getRecords } from "@/lib/airtable";
 import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { headers } from 'next/headers';
+import { z as zod } from "zod";
 
 // The form schema for extra validation
 const schema = z.object({
@@ -15,7 +16,11 @@ const schema = z.object({
         message: "Last Name cannot be empty",
     }),
     Birthday: z.string().date("Birthday must be a valid date"),
+    referral_code: z.coerce.number().optional().transform(val => val === 0 ? undefined : val),
+    Email: z.string().email().optional(),
 });
+
+type SchemaType = z.infer<typeof schema>;
 
 type Data = Record<string, FormDataEntryValue | FormDataEntryValue[]>;
 
@@ -98,11 +103,16 @@ export async function save(state: FormSave, payload: FormData): Promise<FormSave
                 }
             }
 
-            (validated.data as Record<string, string>)["Email"] = email.data
+            (validated.data as SchemaType)["Email"] = email.data
         }
 
         // Create a new Entry
         const newEntry: EntryData = { ...validated.data };
+        
+        // Only include referral_code if it's not null
+        if (validated.data.referral_code === null) {
+            delete newEntry.referral_code;
+        }
 
         // If a session exists, use that email on the new entry
         if (session && session!.user && session!.user!.email)

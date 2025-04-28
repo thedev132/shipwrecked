@@ -3,11 +3,12 @@ import styles from './page.module.css';
 import Modal from '@/components/common/Modal';
 import Toast from '@/components/common/Toast';
 import { useState, useEffect, useActionState } from 'react';
-import { createProjectAction } from './submit/actions';
+import { createProjectAction, FormSave } from './submit/actions';
 import { Project } from '@/components/common/Project';
 import FormSelect from '@/components/form/FormSelect';
 import FormInput from '@/components/form/FormInput';
 import { useSession } from 'next-auth/react';
+import { Toaster, toast } from "sonner";
 
 export default function Bay() {
   const { data: session, status } = useSession();
@@ -21,7 +22,16 @@ export default function Bay() {
     setToastType(type);
   };
 
-  const [state, formAction, pending] = useActionState(createProjectAction, {
+  const [state, formAction, pending] = useActionState((state: FormSave, payload: FormData) => new Promise<FormSave>((resolve, reject) => {
+    toast.promise(createProjectAction(state, payload), {
+      loading: "Creating project...",
+      error: () => { reject(); return "Failed to create new project" },
+      success: data => {
+        resolve(data as FormSave);
+        return "Created new project"
+      }
+    });
+  }), {
     errors: undefined,
     data: {
       name: "",
@@ -86,15 +96,15 @@ export default function Bay() {
         
         <div className={styles.stats}>
           <div className={styles.statItem}>
-            <span className={styles.statLabel}>Total Ships</span>
+            <span className={styles.statLabel}>Total Ships — </span>
             <span className={styles.statValue}>{projects.length}</span>
           </div>
           <div className={styles.statItem}>
-            <span className={styles.statLabel}>Ships at Sea</span>
+            <span className={styles.statLabel}>Ships at Sea — </span>
             <span className={styles.statValue}>0</span>
           </div>
           <div className={styles.statItem}>
-            <span className={styles.statLabel}>Ships in Port</span>
+            <span className={styles.statLabel}>Ships in Port — </span>
             <span className={styles.statValue}>0</span>
           </div>
         </div>
@@ -109,7 +119,8 @@ export default function Bay() {
           
           <a 
             href="/bay/submit" 
-            className={styles.submitLink}
+            // className={styles.submitLink}
+            className="px-4 py-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 active:scale-95 transition font-semibold"
           >
             Submit New Ship
           </a>
@@ -177,14 +188,18 @@ export default function Bay() {
           </form>
         </Modal>
 
-        {projects.map((project: any) => (
-          <Project 
-            key={project.projectID}
-            deleteHandler={deleteProjectId(0, project.projectID, project.userId)}
-            {...project}
-          />
-        ))}
+        <h1 className={`${styles.title} my-4`}>Your Projects</h1>
+        <div className="grid grid-cols-3 gap-3 my-4">
+          {projects.map((project: any) => (
+            <Project
+              key={project.projectID}
+              deleteHandler={deleteProjectId(0, project.projectID, project.userId)}
+              {...project}
+            />
+          ))}
+        </div>
 
+        <Toaster richColors />
         {toastMessage && (
           <Toast
             message={toastMessage}

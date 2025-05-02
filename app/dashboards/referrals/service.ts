@@ -29,6 +29,7 @@ export interface ReferralDataProvider {
   getReferralsByType(): Promise<ReferralData[]>;
   getReferralsByReferrer(): Promise<ReferralData[]>;
   getReferralsByRSVPs(): Promise<ReferralData[]>;
+  getAllTimeTopReferrers(): Promise<ReferralData[]>;
 }
 
 // Airtable implementation
@@ -82,18 +83,32 @@ export class AirtableReferralDataProvider implements ReferralDataProvider {
       const rsvps = await response.json() as RSVP[];
       if (!rsvps?.length) return [];
 
-      // Group RSVPs by referral type
-      const referralsByType = rsvps.reduce((acc: Record<string, number>, rsvp: RSVP) => {
+      // Group RSVPs by type and date
+      const referralsByTypeAndDate = rsvps.reduce((acc: Record<string, Record<string, number>>, rsvp: RSVP) => {
         const type = rsvp.referralType || 'direct';
-        acc[type] = (acc[type] || 0) + 1;
+        const date = new Date(rsvp.createdAt).toISOString().split('T')[0];
+        
+        if (!acc[type]) {
+          acc[type] = {};
+        }
+        acc[type][date] = (acc[type][date] || 0) + 1;
         return acc;
       }, {});
 
-      return Object.entries(referralsByType).map(([name, value]) => ({
-        name,
-        value,
-        date: new Date().toISOString()
-      }));
+      // Flatten into array of ReferralData
+      const result: ReferralData[] = [];
+      Object.entries(referralsByTypeAndDate).forEach(([type, dateCounts]) => {
+        Object.entries(dateCounts).forEach(([date, count]) => {
+          result.push({
+            name: type,
+            value: count,
+            date
+          });
+        });
+      });
+
+      // Sort by date
+      return result.sort((a, b) => a.date.localeCompare(b.date));
     } catch (error) {
       console.error('Error getting referral type data:', error);
       return [];
@@ -106,20 +121,59 @@ export class AirtableReferralDataProvider implements ReferralDataProvider {
       const rsvps = await response.json() as RSVP[];
       if (!rsvps?.length) return [];
 
-      // Group RSVPs by referrer
+      // Calculate date range for past 24 hours
+      const now = new Date();
+      const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+      // Group RSVPs by referrer for the past 24 hours
+      const referralsByReferrer = rsvps.reduce((acc: Record<string, number>, rsvp: RSVP) => {
+        const rsvpDate = new Date(rsvp.createdAt);
+        if (rsvpDate >= oneDayAgo) {
+          const referrer = rsvp.referralCode || 'direct';
+          acc[referrer] = (acc[referrer] || 0) + 1;
+        }
+        return acc;
+      }, {});
+
+      // Convert to array and sort by count (descending)
+      return Object.entries(referralsByReferrer)
+        .map(([name, value]) => ({
+          name,
+          value,
+          date: now.toISOString().split('T')[0] // Use current date since it's a summary
+        }))
+        .sort((a, b) => b.value - a.value) // Sort by count descending
+        .slice(0, 10); // Take top 10 referrers
+    } catch (error) {
+      console.error('Error getting referrer data:', error);
+      return [];
+    }
+  }
+
+  async getAllTimeTopReferrers(): Promise<ReferralData[]> {
+    try {
+      const response = await fetch('/api/referrals/cache');
+      const rsvps = await response.json() as RSVP[];
+      if (!rsvps?.length) return [];
+
+      // Group all RSVPs by referrer
       const referralsByReferrer = rsvps.reduce((acc: Record<string, number>, rsvp: RSVP) => {
         const referrer = rsvp.referralCode || 'direct';
         acc[referrer] = (acc[referrer] || 0) + 1;
         return acc;
       }, {});
 
-      return Object.entries(referralsByReferrer).map(([name, value]) => ({
-        name,
-        value,
-        date: new Date().toISOString()
-      }));
+      // Convert to array and sort by count (descending)
+      return Object.entries(referralsByReferrer)
+        .map(([name, value]) => ({
+          name,
+          value,
+          date: new Date().toISOString().split('T')[0] // Use current date since it's a summary
+        }))
+        .sort((a, b) => b.value - a.value) // Sort by count descending
+        .slice(0, 50); // Take top 50 referrers
     } catch (error) {
-      console.error('Error getting referrer data:', error);
+      console.error('Error getting all-time referrer data:', error);
       return [];
     }
   }
@@ -192,6 +246,15 @@ export class MockReferralDataProvider implements ReferralDataProvider {
       { name: 'Total RSVPs', value: 40, date: '2024-03-01' },
       { name: 'Total RSVPs', value: 65, date: '2024-03-08' },
       { name: 'Total RSVPs', value: 45, date: '2024-03-15' }
+    ];
+  }
+
+  async getAllTimeTopReferrers(): Promise<ReferralData[]> {
+    await new Promise(resolve => setTimeout(resolve, 100));
+    return [
+      { name: 'John Doe', value: 25, date: '2024-03-15' },
+      { name: 'Jane Smith', value: 20, date: '2024-03-15' },
+      { name: 'Bob Johnson', value: 15, date: '2024-03-15' }
     ];
   }
 }

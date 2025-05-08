@@ -11,9 +11,54 @@ import { useSession } from 'next-auth/react';
 import { Toaster, toast } from "sonner";
 import ProgressBar from '@/components/common/ProgressBar';
 import type { ProjectType } from '../api/projects/route';
+import { useRouter } from 'next/navigation';
+
+function AccessDeniedHaiku() {
+  const router = useRouter();
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    // Start fade-in after mount
+    const fadeTimer = setTimeout(() => setVisible(true), 10);
+    // Redirect after 5 seconds
+    const redirectTimer = setTimeout(() => {
+      router.push('/bay/login');
+    }, 5000);
+    return () => {
+      clearTimeout(fadeTimer);
+      clearTimeout(redirectTimer);
+    };
+  }, [router]);
+
+  return (
+    <div className="fixed inset-0 bg-[url(/bay.webp)] bg-cover bg-center">
+      <div className="relative flex items-center justify-center h-full">
+        <div
+          style={{
+            opacity: visible ? 1 : 0,
+            transition: 'opacity 4s ease-in',
+            display: 'inline-block'
+          }}
+          className="text-center"
+        >
+          <p className="text-5xl md:text-6xl font-serif mb-6 text-white font-bold">
+            Stranded on the shore,
+          </p>
+          <p className="text-5xl md:text-6xl font-serif mb-6 text-white font-bold">
+            Treasure lies beyond the waves,
+          </p>
+          <p className="text-5xl md:text-6xl font-serif text-white font-bold">
+            Sign in to set sail.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function Bay() {
   const { data: session, status } = useSession();
+  const router = useRouter();
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [toastType, setToastType] = useState<'success' | 'error' | 'info' | 'warning'>('info');
@@ -130,7 +175,9 @@ export default function Bay() {
   }, []);  
   
   if (status === "loading") return <>Loading...</>
-  if (status === "unauthenticated") return <>Access Denied! <a className="underline text-blue-500" href="/api/auth/signin">Sign In</a></>
+  if (status === "unauthenticated") {
+    return <AccessDeniedHaiku />;
+  }
 
 
   return (

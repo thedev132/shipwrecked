@@ -9,6 +9,7 @@ interface ModalProps {
   title?: string;
   children: React.ReactNode;
   okText?: string;
+  hideFooter?: boolean;
 }
 
 export default function Modal({ 
@@ -16,9 +17,11 @@ export default function Modal({
   onClose, 
   title = 'Information',
   children,
-  okText = 'OK'
+  okText = 'OK',
+  hideFooter = false
 }: ModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   // Close on escape key
   useEffect(() => {
@@ -39,9 +42,20 @@ export default function Modal({
 
   // Close if clicking outside modal
   const handleBackdropClick = (e: React.MouseEvent) => {
+    // Stop propagation to prevent triggering parent element clicks
+    e.stopPropagation();
+    
     if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
       onClose();
     }
+  };
+
+  // Safe close handler that stops event propagation
+  const handleClose = (e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+    }
+    onClose();
   };
 
   if (!isOpen) return null;
@@ -59,30 +73,32 @@ export default function Modal({
         aria-labelledby="modal-title"
         aria-modal="true"
       >
-        <div className={styles.header}>
+        <div className={`${styles.header} sticky top-0 z-10 bg-white`}>
           <span className='flex flex-row items-center'>
           <img src="/bottle.png" className="w-[60px] -rotate-45" />
           <h2 id="modal-title" className={styles.title}>{title}</h2>
           </span>
          <button 
-            onClick={onClose}
+            onClick={handleClose}
             className={styles.closeButton}
             aria-label="Close modal"
           >
             <img className='w-[40px]' src="/mark-cross.svg" />
           </button>
         </div>
-        <div className={styles.content}>
+        <div className={styles.content} ref={contentRef}>
           {children}
         </div>
-        <div className={styles.footer}>
-          <button 
-            onClick={onClose}
-            className={styles.okButton}
-          >
-            {okText}
-          </button>
-        </div>
+        {!hideFooter && (
+          <div className={`${styles.footer} sticky bottom-0 z-10 bg-white`}>
+            <button 
+              onClick={handleClose}
+              className={styles.okButton}
+            >
+              {okText}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

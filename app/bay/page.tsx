@@ -247,6 +247,7 @@ export default function Bay() {
   const [isMobile, setIsMobile] = useState(false);
   const [isDeleteConfirmModalOpen, setIsDeleteConfirmModalOpen] = useState<boolean>(false);
   const [projectToDelete, setProjectToDelete] = useState<ProjectType | null>(null);
+  const [isProgressModalOpen, setIsProgressModalOpen] = useState<boolean>(false);
 
   // Load Hackatime projects once when component mounts or user changes
   useEffect(() => {
@@ -503,8 +504,22 @@ export default function Bay() {
   useEffect(() => {
     // Only count hours from projects that are in the projects list
     const total = projects.reduce((sum, project) => {
+      // If project is viral, it automatically counts as 15 hours
+      if (project.viral) {
+        return sum + 15;
+      }
+      
       // If project has a hackatime ID, get hours from projectHours, otherwise default to 0
-      const hours = project.hackatime ? (projectHours[project.hackatime] || 0) : 0;
+      let hours = project.hackatime ? (projectHours[project.hackatime] || 0) : 0;
+      
+      // Cap hours per project at 15
+      hours = Math.min(hours, 15);
+      
+      // If the project is not shipped, cap it at 14.75 hours
+      if (!project.shipped && hours > 14.75) {
+        hours = 14.75;
+      }
+      
       return sum + hours;
     }, 0);
     
@@ -518,11 +533,11 @@ export default function Bay() {
   return (
     <div className={styles.container}>
       <div className={styles.progressSection}>
-        <div className="flex items-center justify-between w-full max-w-xl mx-auto py-2 md:py-4 md:mb-6">
-          <div className="flex-grow px-4 sm:px-0">
-            <div className="flex items-center gap-3 mb-1 mt-2 md:mt-0">
-              <span className="text-xl">🧑‍💻</span>
-              <div className="flex-grow">
+        <div className="w-full max-w-xl mx-auto py-2 md:py-4 md:mb-6">
+          <div className="px-4 sm:px-0">
+            <div className="flex items-center gap-3 mb-1">
+              <span className="text-4xl md:text-5xl">👤</span>
+              <div className="flex-grow cursor-pointer" onClick={() => setIsProgressModalOpen(true)}>
                 <ProgressBar 
                   value={totalHours} 
                   max={100} 
@@ -531,9 +546,9 @@ export default function Bay() {
                   animated={totalHours < 100}
                 />
               </div>
-              <span className="text-xl">🏝️</span>
+              <span className="text-4xl md:text-5xl">🏝️</span>
             </div>
-            <div className="text-center mt-1 mb-3 md:mb-1">
+            <div className="text-center mt-1 mb-1">
               <h3 className="font-medium text-lg">
                 {totalHours}%
               </h3>
@@ -541,6 +556,99 @@ export default function Bay() {
           </div>
         </div>
       </div>
+      {/* Progress Information Modal */}
+      <Modal
+        isOpen={isProgressModalOpen}
+        onClose={() => setIsProgressModalOpen(false)}
+        title="Progress Information"
+        okText="Got it!"
+      >
+        <div className="p-4">
+          <h3 className="text-lg font-semibold mb-3">Your Journey to Shipwreck Island</h3>
+          <p className="mb-4">
+            The progress bar shows your completion percentage towards the 60-hour goal required to qualify for Shipwrecked.
+          </p>
+          
+          <div className="bg-gray-50 p-4 rounded-lg mb-4">
+            <h4 className="font-medium mb-2">How We Calculate Your Progress:</h4>
+            <ul className="list-disc pl-5 space-y-2">
+              <li>
+                We track the total development hours from all your Hackatime projects listed in The Bay
+              </li>
+              <li>
+                <strong>Each project is capped at 15 hours maximum</strong> contribution toward your total
+              </li>
+              <li>
+                <strong>Viral projects automatically count for the full 15 hours</strong>, regardless of actual tracked time
+              </li>
+              <li>
+                Projects that are not marked as "shipped" are capped at 14.75 hours
+              </li>
+              <li>
+                Only hours from projects you've added to The Bay count toward your progress
+              </li>
+            </ul>
+          </div>
+          
+          <div className="bg-gray-50 p-4 rounded-lg mb-4">
+            <h4 className="font-medium mb-2">Calculation Breakdown:</h4>
+            <ol className="list-decimal pl-5 space-y-3">
+              <li className="pb-1">
+                <span className="font-semibold block mb-1">Step 1: Calculate hours for each project</span>
+                <ul className="list-disc pl-5 text-sm space-y-1">
+                  <li><strong>If project is viral:</strong> Count as 15 hours</li>
+                  <li><strong>If not viral:</strong> Take tracked hours (capped at 15 hours)</li>
+                  <li><strong>If not shipped:</strong> Cap at 14.75 hours maximum</li>
+                </ul>
+              </li>
+              <li className="pb-1">
+                <span className="font-semibold block mb-1">Step 2: Calculate total hours</span>
+                <div className="text-sm">
+                  Add up the hours from all projects to get your total hours
+                </div>
+                <div className="font-mono bg-gray-100 p-2 my-1 rounded-md text-sm">
+                  Total Hours = Project1 Hours + Project2 Hours + ... + ProjectN Hours
+                </div>
+              </li>
+              <li className="pb-1">
+                <span className="font-semibold block mb-1">Step 3: Calculate percentage</span>
+                <div className="text-sm">
+                  Divide your total hours by 60 (the goal) and multiply by 100
+                </div>
+                <div className="font-mono bg-gray-100 p-2 my-1 rounded-md text-sm">
+                  Percentage = (Total Hours ÷ 60) × 100%
+                </div>
+                <div className="text-sm">
+                  The final percentage is capped at 100%
+                </div>
+              </li>
+            </ol>
+            <div className="mt-3 text-sm bg-blue-50 p-2 rounded-md">
+              <span className="font-semibold block">Example:</span>
+              <p>If you have 3 projects:</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li>Project 1: Viral (automatically 15 hours)</li>
+                <li>Project 2: 20 hours tracked but not viral (capped at 15 hours)</li>
+                <li>Project 3: 10 hours tracked, not shipped (10 hours)</li>
+              </ul>
+              <p className="mt-1">Total Hours = 15 + 15 + 10 = 40 hours</p>
+              <p>Percentage = (40 ÷ 60) × 100% = 66.7% (rounded to 67%)</p>
+            </div>
+          </div>
+          
+          <div className="bg-gray-50 p-4 rounded-lg mb-4">
+            <h4 className="font-medium mb-2">Requirements for Shipwrecked:</h4>
+            <ol className="list-decimal pl-5 space-y-2">
+              <li>
+                Complete at least 60 hours of development time (roughly 15 hours per project) and ship 4 fully deployed projects
+              </li>
+              <li>
+                Make at least one of your projects go viral according to our <a href="/info/go-viral" className="text-blue-600 hover:underline">defined criteria</a>
+              </li>
+            </ol>
+          </div>          
+        </div>
+      </Modal>
       <div className={styles.content}>
         <div className={styles.projectList}>
           <div className="mt-2 md:mt-6 w-full">

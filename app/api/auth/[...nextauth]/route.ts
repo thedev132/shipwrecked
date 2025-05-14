@@ -91,7 +91,8 @@ export const opts: NextAuthOptions = {
         user: {
           ...session.user,
           id: user.id,
-          hackatimeId: user.hackatimeId
+          hackatimeId: user.hackatimeId,
+          isAdmin: user.isAdmin
         }
       };
     },
@@ -100,7 +101,8 @@ export const opts: NextAuthOptions = {
       console.log('Sign in attempt:', {
         email: user.email,
         provider: account?.provider,
-        hasHackatimeId: !!user.hackatimeId
+        hasHackatimeId: !!user.hackatimeId,
+        isAdmin: user.isAdmin,
       });
 
       if (!user.email) {

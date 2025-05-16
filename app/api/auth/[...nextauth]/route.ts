@@ -7,9 +7,96 @@ import { NextAuthOptions } from "next-auth";
 import { randomBytes } from "crypto";
 import metrics from "@/metrics";
 import { sendAuthEmail, sendNotificationEmail } from "@/lib/loops";
+import { AdapterUser } from "next-auth/adapters";
 
 const adapter = {
   ...PrismaAdapter(prisma),
+  // Custom createUser method to add auditing
+  createUser: async (user: AdapterUser) => {
+    console.log('Creating user:', user.email);
+    
+    // Create the user using Prisma
+    const userCreated = await prisma.user.create({
+      data: user
+    });
+    
+    // Log the user creation event
+    try {
+      // Import dynamically to avoid circular imports
+      const { logUserEvent, AuditLogEventType } = await import('@/lib/auditLogger');
+      
+      await logUserEvent({
+        eventType: AuditLogEventType.UserCreated,
+        description: `User account created with email ${user.email}`,
+        targetUserId: userCreated.id,
+        metadata: {
+          provider: 'system',
+          email: user.email,
+          timestamp: new Date().toISOString()
+        }
+      });
+      
+      console.log('User creation audit log created successfully');
+    } catch (error) {
+      console.error('Failed to create audit log for user creation:', error);
+    }
+    
+    return userCreated;
+  },
+  // Override updateUser to log when email is verified
+  updateUser: async (user: { id: string; emailVerified?: Date | null } & Record<string, any>) => {
+    console.log('Updating user:', user.id, 'with data:', JSON.stringify(user));
+    
+    // If emailVerified is being set and it's not null
+    if (user.emailVerified) {
+      try {
+        // Get the user first to get their email for the audit log
+        const existingUser = await prisma.user.findUnique({
+          where: { id: user.id },
+          select: { email: true }
+        });
+        
+        if (existingUser) {
+          const updatedUser = await prisma.user.update({
+            where: { id: user.id },
+            data: user
+          });
+          
+          // Create audit log for email verification
+          try {
+            // Import dynamically to avoid circular imports
+            const { logUserEvent, AuditLogEventType } = await import('@/lib/auditLogger');
+            
+            await logUserEvent({
+              eventType: AuditLogEventType.UserVerified,
+              description: `User verified email address: ${existingUser.email}`,
+              targetUserId: user.id,
+              metadata: {
+                email: existingUser.email,
+                verifiedAt: user.emailVerified instanceof Date 
+                  ? user.emailVerified.toISOString() 
+                  : new Date().toISOString()
+              }
+            });
+            
+            console.log('Email verification audit log created successfully');
+          } catch (error) {
+            console.error('Failed to create audit log for email verification:', error);
+          }
+          
+          return updatedUser;
+        }
+      } catch (error) {
+        console.error('Error in custom updateUser with verification:', error);
+      }
+    }
+    
+    // Fall back to default update behavior
+    return prisma.user.update({
+      where: { id: user.id },
+      data: user
+    });
+  },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
   linkAccount: async ({ ok, state, ...data }: any) => {
     console.log('Linking account:', { provider: data.provider, userId: data.userId });
@@ -27,7 +114,7 @@ const adapter = {
         // Get existing user data to check if name is already set
         const user = await prisma.user.findUnique({
           where: { id: data.userId },
-          select: { name: true }
+          select: { name: true, email: true }
         });
         
         // Prepare update data with Slack user ID
@@ -65,6 +152,28 @@ const adapter = {
           where: { id: data.userId },
           data: updateData
         });
+        
+        // Create audit log for Slack connection
+        try {
+          // Import dynamically to avoid circular imports
+          const { logUserEvent, AuditLogEventType } = await import('@/lib/auditLogger');
+          
+          await logUserEvent({
+            eventType: AuditLogEventType.SlackConnected,
+            description: `User connected Slack account`,
+            targetUserId: data.userId,
+            metadata: {
+              provider: 'slack',
+              slackId: data.providerAccountId,
+              email: user?.email,
+              timestamp: new Date().toISOString()
+            }
+          });
+          
+          console.log('Slack connection audit log created successfully');
+        } catch (error) {
+          console.error('Failed to create audit log for Slack connection:', error);
+        }
         
         metrics.increment("success.link_account_id", 1);
       } catch (err) {
@@ -134,6 +243,7 @@ export const opts: NextAuthOptions = {
           ...session.user,
           id: user.id,
           hackatimeId: user.hackatimeId,
+          role: user.role,
           isAdmin: user.isAdmin,
           status: user.status,
           emailVerified: user.emailVerified

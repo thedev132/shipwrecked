@@ -432,15 +432,9 @@ export async function PUT(request: Request) {
                 projectID: formData.get('projectID')?.toString() || '',
                 name: formData.get('name')?.toString() || '',
                 description: formData.get('description')?.toString() || '',
-                hackatime: formData.get('hackatime')?.toString(),
                 codeUrl: formData.get('codeUrl')?.toString() || '',
                 playableUrl: formData.get('playableUrl')?.toString() || '',
                 screenshot: formData.get('screenshot')?.toString() || '',
-                viral: formData.get('viral') === 'true',
-                shipped: formData.get('shipped') === 'true',
-                in_review: formData.get('in_review') === 'true',
-                rawHours: parseFloat(formData.get('rawHours')?.toString() || '0'),
-                hoursOverride: formData.get('hoursOverride') ? parseFloat(formData.get('hoursOverride')?.toString() || '0') : undefined
             };
         } else {
             console.log('[PUT] Parsing JSON');
@@ -452,17 +446,22 @@ export async function PUT(request: Request) {
             }
         }
 
-        const { projectID, ...updateFields } = projectData;
+        let { projectID, ...updateFields } = projectData;
         if (!projectID) {
             return Response.json({ success: false, error: 'projectID is required' }, { status: 400 });
         }
 
-        // Remove undefined fields
-        Object.keys(updateFields).forEach(key => {
-            if (updateFields[key] === undefined) {
-                delete updateFields[key];
-            }
-        });
+
+		const allowedFields = [
+			"name",
+			"description",
+			"codeUrl",
+			"playableUrl",
+			"screenshot",
+		];
+
+		const isAdmin = user.role === "Admin" || user.isAdmin;
+		updateFields = Object.fromEntries(Object.entries(updateFields).filter(([key, val]) => val !== undefined && (allowedFields.includes(key) || isAdmin)));
         
         console.log(`[PUT] Updating project ${projectID} with fields:`, updateFields);
         

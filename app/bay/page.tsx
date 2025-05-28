@@ -2,7 +2,7 @@
 import styles from './page.module.css';
 import Modal from '@/components/common/Modal';
 import Toast from '@/components/common/Toast';
-import { useState, useEffect, useActionState, useContext, useMemo, ReactElement } from 'react';
+import { useState, useEffect, useActionState, useContext, useMemo, ReactElement, useRef } from 'react';
 import type { FormSave } from '@/components/form/FormInput';
 import { Project } from '@/components/common/Project';
 import FormSelect from '@/components/form/FormSelect';
@@ -138,6 +138,27 @@ async function getHackatimeProjects() {
   }
 }
 
+// Helper to get project hours with our matching logic
+function getProjectHackatimeHours(project: ProjectType): number {
+  // Safety check for null/undefined project
+  if (!project) return 0;
+  
+  // If project has hackatimeLinks, calculate total from all links
+  if (project.hackatimeLinks && project.hackatimeLinks.length > 0) {
+    return project.hackatimeLinks.reduce((sum, link) => {
+      // Use the link's hoursOverride if it exists, otherwise use rawHours
+      const effectiveHours = (link.hoursOverride !== undefined && link.hoursOverride !== null)
+        ? link.hoursOverride
+        : (typeof link.rawHours === 'number' ? link.rawHours : 0);
+      
+      return sum + effectiveHours;
+    }, 0);
+  }
+  
+  // Fallback for backward compatibility - use project-level rawHours
+  return project?.rawHours || 0;
+}
+
 // Project Detail Component
 function ProjectDetail({ 
   project, 
@@ -172,11 +193,14 @@ function ProjectDetail({
     // Safety check for null project
     if (!project) return 0;
     
-    // Get hours from project properties
-    // Use hoursOverride if present, otherwise use rawHours
-    const rawHours = typeof project?.hoursOverride === 'number' && project.hoursOverride !== null 
-      ? project.hoursOverride 
-      : project?.rawHours || 0;
+    // If viral, it's 15 hours (25% toward the 60-hour goal)
+    if (projectFlags?.viral === true) {
+      console.log(`ProjectDetail: ${project.name} is viral, returning 15 hours`);
+      return 15;
+    }
+    
+    // Get hours from project properties using the helper function
+    const rawHours = getProjectHackatimeHours(project);
     
     // Cap hours per project at 15
     let cappedHours = Math.min(rawHours, 15);
@@ -235,10 +259,8 @@ function ProjectDetail({
   // console.log(`ProjectDetail rendering: ${project.name}, hours=${projectHours}, viral=${project.viral}, shipped=${project.shipped}`);
   
   return (
-    <div className={`${styles.editForm} md:max-h-screen md:overflow-y-scroll`}>
-      <div className="flex justify-between items-center mb-5 border-b pb-3 sticky top-0 bg-white z-10"
-        style={{ paddingTop: '1.5rem' }}
-      >
+    <div className={`${styles.editForm}`}>
+      <div className="flex justify-between items-center mb-5 border-b pb-3 sticky top-0 bg-white z-10">
         <h2 className="text-2xl font-bold">{project.name}</h2>
         {isEditingAllowed ? (
           <button
@@ -278,22 +300,27 @@ function ProjectDetail({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <span className="text-sm text-gray-500">Raw Hackatime Hours</span>
-              <p className="text-lg font-semibold mt-1">{project.rawHours}h</p>
-            </div>
-            <div>
-              <span className="text-sm text-gray-500">Admin Hours Override</span>
               <p className="text-lg font-semibold mt-1">
-                {project.hoursOverride !== undefined && project.hoursOverride !== null 
-                  ? `${project.hoursOverride}h` 
-                  : '—'}
+                {project.hackatimeLinks && project.hackatimeLinks.length > 0 
+                  ? `${project.hackatimeLinks.reduce((sum, link) => sum + (link.rawHours || 0), 0)}h`
+                  : `${project.rawHours || 0}h`}
               </p>
             </div>
-            <div className="col-span-2 mt-2">
-              <span className="text-sm text-gray-500">Effective Hours</span>
-              <p className="text-lg font-semibold text-blue-600 mt-1">
-                {(project.hoursOverride !== undefined && project.hoursOverride !== null) 
-                  ? `${project.hoursOverride}h` 
-                  : `${project.rawHours}h`}
+            <div>
+              <span className="text-sm text-gray-500">Approved Hackatime Hours</span>
+              <p className="text-lg font-semibold mt-1">
+                {(() => {
+                  if (project.hackatimeLinks && project.hackatimeLinks.length > 0) {
+                    const totalApproved = project.hackatimeLinks.reduce((sum, link) => {
+                      return sum + (link.hoursOverride !== null && link.hoursOverride !== undefined ? link.hoursOverride : 0);
+                    }, 0);
+                    return totalApproved > 0 ? `${totalApproved}h` : '—';
+                  } else {
+                    return project.hoursOverride !== undefined && project.hoursOverride !== null 
+                      ? `${project.hoursOverride}h` 
+                      : '—';
+                  }
+                })()}
               </p>
             </div>
           </div>
@@ -303,6 +330,8 @@ function ProjectDetail({
         <ProjectReviewRequest
           projectID={project.projectID}
           isInReview={projectFlags.in_review}
+          isShipped={projectFlags.shipped}
+          isViral={projectFlags.viral}
           onRequestSubmitted={(updatedProject, review) => {
             // Update projectFlags with the updated data
             setProjectFlags(prev => ({
@@ -323,10 +352,34 @@ function ProjectDetail({
           }}
         />
         
-        {project.hackatime && (
+        {/* Hackatime Project Links Section */}
+        {project.hackatimeLinks && project.hackatimeLinks.length > 0 && (
           <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-sm font-medium text-gray-700 mb-2">Hackatime Project</h3>
-            <p className="text-base text-gray-900">{project.hackatime}</p>
+            <h3 className="text-sm font-medium text-gray-700 mb-3">
+              Hackatime Project Links
+            </h3>
+            <div className="bg-white rounded border">
+              {/* Table Header */}
+              <div className="grid grid-cols-3 gap-4 p-3 border-b bg-gray-50 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <div>PROJECT</div>
+                <div className="text-center">RAW</div>
+                <div className="text-center">APPROVED</div>
+              </div>
+              {/* Table Rows */}
+              {project.hackatimeLinks.map((link, index) => (
+                <div key={link.id} className="grid grid-cols-3 gap-4 p-3 border-b last:border-b-0 text-sm">
+                  <div className="font-medium text-gray-900">{link.hackatimeName}</div>
+                  <div className="text-center text-gray-600">{link.rawHours}h</div>
+                  <div className="text-center">
+                    {link.hoursOverride !== null && link.hoursOverride !== undefined ? (
+                      <span className="text-blue-600 font-medium">{link.hoursOverride}h</span>
+                    ) : (
+                      <span className="text-gray-400">—</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
         
@@ -554,8 +607,8 @@ function BayWithReviewMode({ session, status, router }: {
         }
         resolve(data as FormSave);
         setIsProjectCreateModalOpen(false);
-        // Update projects list with new project
-        setProjects(prev => [...prev, data.data as ProjectType]);
+        // Refresh the entire projects list to ensure we get complete data including hackatimeLinks
+        getUserProjects();
         return "Created new project"
       }
     });
@@ -682,19 +735,24 @@ function BayWithReviewMode({ session, status, router }: {
     // console.log('🧮 Calculating total hours for', projects.length, 'projects');
     // console.log('📊 projectHours keys:', Object.keys(projectHours));
     
-    // Log hackatime values from projects
-    // console.log('🔗 Project hackatime values:', projects.map(p => ({
+    // Log hackatime links from projects
+    // console.log('🔗 Project hackatime links:', projects.map(p => ({
     //   name: p.name,
-    //   hackatime: p.hackatime
+    //   hackatimeLinks: p.hackatimeLinks?.map(link => link.hackatimeName) || []
     // })));
     
     const total = projects.reduce((sum, project) => {
+      // If project is viral, it automatically counts as 15 hours
+      if (project.viral) {
+        console.log(`Project ${project.name} is viral, contributing 15 hours`);
+        return sum + 15;
+      }
       
       // Get hours using our helper function
       let hours = getProjectHackatimeHours(project);
       
       // Log the hours lookup for debugging
-      // console.log(`Project ${project.name} hackatime="${project.hackatime}", hours=${hours}`);
+      // console.log(`Project ${project.name} hackatimeLinks=${project.hackatimeLinks?.length || 0}, hours=${hours}`);
       
       // Cap hours per project at 15
       let cappedHours = Math.min(hours, 15);
@@ -735,9 +793,9 @@ function BayWithReviewMode({ session, status, router }: {
       // Cap hours per project
       let cappedHours = Math.min(hours, 15);
       
-      // If it's viral
+      // If the project is viral, it counts as 15 hours
       if (project?.viral === true) {
-        viralHours += cappedHours;
+        viralHours += 15;
       } 
       // If it's shipped but not viral
       else if (project?.shipped === true) {
@@ -829,47 +887,8 @@ function BayWithReviewMode({ session, status, router }: {
     }, 0);
   };
 
-  // Shared helper function for case-insensitive hackatime matching
-  const findMatchingHackatimeKey = (projectHackatime: string | undefined): string | null => {
-    if (!projectHackatime) return null;
-    if (!projectHours) return null;
-    
-    // First try direct match
-    if (projectHours[projectHackatime] !== undefined) {
-      return projectHackatime;
-    }
-    
-    try {
-      // Try case-insensitive match if direct match fails
-      const lowerHackatime = projectHackatime.toLowerCase();
-      const keys = Object.keys(projectHours || {});
-      const matchingKey = keys.find(key => 
-        key && typeof key === 'string' && key.toLowerCase() === lowerHackatime
-      );
-      
-      return matchingKey || null;
-    } catch (error) {
-      console.error('Error in findMatchingHackatimeKey:', error);
-      return null;
-    }
-  };
-  
-  // Helper to get project hours with our matching logic
-  const getProjectHackatimeHours = (project: ProjectType): number => {
-    // Safety check for null/undefined project
-    if (!project) return 0;
-    
-    // Use hoursOverride if available
-    if (typeof project?.hoursOverride === 'number' && project.hoursOverride !== null) {
-      return project.hoursOverride;
-    }
-    
-    // Otherwise use raw hours from hackatime
-    if (!project?.hackatime) return project?.rawHours || 0;
-    
-    const matchingKey = findMatchingHackatimeKey(project.hackatime);
-    return matchingKey ? (projectHours[matchingKey] || 0) : (project?.rawHours || 0);
-  };
+
+
 
   return (
     <div className={styles.container}>
@@ -945,73 +964,6 @@ function BayWithReviewMode({ session, status, router }: {
             </p>
           </div>
           
-          {/* <div className="bg-gray-50 p-4 rounded-lg mb-4">
-            <h4 className="font-medium mb-2">How We Calculate Your Progress:</h4>
-            <ul className="list-disc pl-5 space-y-2">
-              <li>
-                We track the total development hours from all your Hackatime projects listed in The Bay
-              </li>
-              <li>
-                <strong>Each project is capped at 15 hours maximum</strong> contribution toward your total
-              </li>
-              <li>
-                <strong>Viral projects automatically count for the full 15 hours</strong>, regardless of actual tracked time
-              </li>
-              <li>
-                Projects that are not marked as "shipped" are capped at 14.75 hours
-              </li>
-              <li>
-                Only hours from projects you've added to The Bay count toward your progress
-              </li>
-            </ul>
-          </div>
-          
-          <div className="bg-gray-50 p-4 rounded-lg mb-4">
-            <h4 className="font-medium mb-2">Calculation Breakdown:</h4>
-            <ol className="list-decimal pl-5 space-y-3">
-              <li className="pb-1">
-                <span className="font-semibold block mb-1">Step 1: Calculate hours for each project</span>
-                <ul className="list-disc pl-5 text-sm space-y-1">
-                  <li><strong>If project is viral:</strong> Count as 15 hours</li>
-                  <li><strong>If not viral:</strong> Take tracked hours (capped at 15 hours)</li>
-                  <li><strong>If not shipped:</strong> Cap at 14.75 hours maximum</li>
-                </ul>
-              </li>
-              <li className="pb-1">
-                <span className="font-semibold block mb-1">Step 2: Calculate total hours</span>
-                <div className="text-sm">
-                  Add up the hours from all projects to get your total hours
-                </div>
-                <div className="font-mono bg-gray-100 p-2 my-1 rounded-md text-sm">
-                  Total Hours = Project1 Hours + Project2 Hours + ... + ProjectN Hours
-                </div>
-              </li>
-              <li className="pb-1">
-                <span className="font-semibold block mb-1">Step 3: Calculate percentage</span>
-                <div className="text-sm">
-                  Divide your total hours by 60 (the goal) and multiply by 100
-                </div>
-                <div className="font-mono bg-gray-100 p-2 my-1 rounded-md text-sm">
-                  Percentage = (Total Hours ÷ 60) × 100%
-                </div>
-                <div className="text-sm">
-                  The final percentage is capped at 100%
-                </div>
-              </li>
-            </ol>
-            <div className="mt-3 text-sm bg-blue-50 p-2 rounded-md">
-              <span className="font-semibold block">Example:</span>
-              <p>If you have 3 projects:</p>
-              <ul className="list-disc pl-5 space-y-1">
-                <li>Project 1: Viral (automatically 15 hours)</li>
-                <li>Project 2: 20 hours tracked but not viral (capped at 15 hours)</li>
-                <li>Project 3: 10 hours tracked, not shipped (10 hours)</li>
-              </ul>
-              <p className="mt-1">Total Hours = 15 + 15 + 10 = 40 hours</p>
-              <p>Percentage = (40 ÷ 60) × 100% = 66.7% (rounded to 67%)</p>
-            </div>
-          </div> */}
-          
           <div className="bg-gray-50 p-4 rounded-lg mb-4">
             <h4 className="font-medium mb-2">Requirements for Shipwrecked:</h4>
             <ol className="list-decimal pl-5 space-y-2">
@@ -1085,7 +1037,7 @@ function BayWithReviewMode({ session, status, router }: {
                     key={project.projectID}
                     {...project}
                     rawHours={project.rawHours}
-                    hoursOverride={project.hoursOverride}
+                    hoursOverride={project.hoursOverride ?? undefined}
                     viral={!!project.viral}
                     shipped={!!project.shipped}
                     in_review={!!project.in_review}
@@ -1234,27 +1186,6 @@ function BayWithReviewMode({ session, status, router }: {
                     </FormInput>
                   </div>
                   
-                  <div className="mb-5 bg-gray-50 p-4 rounded-lg">
-                    <FormSelect 
-                      fieldName='hackatime'
-                      placeholder={
-                        isLoadingHackatime 
-                          ? 'Loading projects...' 
-                          : Object.keys(hackatimeProjects).length === 0
-                            ? 'No Hackatime projects found'
-                            : 'Select a Hackatime Project'
-                      }
-                      required
-                      values={hackatimeProjects}
-                      {...(initialEditState.hackatime && { 
-                        defaultValue: initialEditState.hackatime
-                      })}
-                      disabled={true}
-                    >
-                      Your Hackatime Project
-                    </FormSelect>
-                  </div>
-                  
                   <div className="mb-5 bg-gray-50 p-4 rounded-lg flex flex-wrap gap-2">
                     <label className="flex items-center text-sm text-gray-600 mr-4 cursor-not-allowed">
                       <input type="checkbox" checked={!!initialEditState.shipped} readOnly disabled /> Shipped
@@ -1310,7 +1241,7 @@ function BayWithReviewMode({ session, status, router }: {
                 }
                 
                 console.log(`Rendering ProjectDetail for ${selectedProject.name}:`, {
-                  hackatime: selectedProject.hackatime,
+                  hackatimeLinks: selectedProject.hackatimeLinks?.length || 0,
                   hours: getProjectHackatimeHours(selectedProject),
                   viral: !!selectedProject.viral,
                   shipped: !!selectedProject.shipped
@@ -1404,6 +1335,11 @@ function BayWithReviewMode({ session, status, router }: {
                 return 0;
               }
               
+              // If viral, it's 15 hours
+              if (selectedProject?.viral === true) {
+                return 15;
+              }
+              
               // Use hoursOverride if available, otherwise use raw hours
               const hours = typeof selectedProject?.hoursOverride === 'number' && selectedProject.hoursOverride !== null
                 ? selectedProject.hoursOverride
@@ -1422,8 +1358,6 @@ function BayWithReviewMode({ session, status, router }: {
             
             const selectedProjectContribution = getSelectedProjectHours();
             const contributionPercentage = Math.round((selectedProjectContribution / 60) * 100);
-            
-            // console.log(`Modal rendering: ${selectedProject.name}, hours=${selectedProjectContribution}, viral=${selectedProject.viral}, shipped=${selectedProject.shipped}`);
             
             return (
               <div className="p-4">
@@ -1466,22 +1400,27 @@ function BayWithReviewMode({ session, status, router }: {
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <span className="text-sm text-gray-500">Raw Hackatime Hours</span>
-                        <p className="text-lg font-semibold mt-1">{selectedProject.rawHours}h</p>
-                      </div>
-                      <div>
-                        <span className="text-sm text-gray-500">Admin Hours Override</span>
                         <p className="text-lg font-semibold mt-1">
-                          {selectedProject.hoursOverride !== undefined && selectedProject.hoursOverride !== null 
-                            ? `${selectedProject.hoursOverride}h` 
-                            : '—'}
+                          {selectedProject.hackatimeLinks && selectedProject.hackatimeLinks.length > 0 
+                            ? `${selectedProject.hackatimeLinks.reduce((sum, link) => sum + (link.rawHours || 0), 0)}h`
+                            : `${selectedProject.rawHours || 0}h`}
                         </p>
                       </div>
-                      <div className="col-span-2 mt-2">
-                        <span className="text-sm text-gray-500">Effective Hours</span>
-                        <p className="text-lg font-semibold text-blue-600 mt-1">
-                          {(selectedProject.hoursOverride !== undefined && selectedProject.hoursOverride !== null) 
-                            ? `${selectedProject.hoursOverride}h` 
-                            : `${selectedProject.rawHours}h`}
+                      <div>
+                        <span className="text-sm text-gray-500">Approved Hackatime Hours</span>
+                        <p className="text-lg font-semibold mt-1">
+                          {(() => {
+                            if (selectedProject.hackatimeLinks && selectedProject.hackatimeLinks.length > 0) {
+                              const totalApproved = selectedProject.hackatimeLinks.reduce((sum, link) => {
+                                return sum + (link.hoursOverride !== null && link.hoursOverride !== undefined ? link.hoursOverride : 0);
+                              }, 0);
+                              return totalApproved > 0 ? `${totalApproved}h` : '—';
+                            } else {
+                              return selectedProject.hoursOverride !== undefined && selectedProject.hoursOverride !== null 
+                                ? `${selectedProject.hoursOverride}h` 
+                                : '—';
+                            }
+                          })()}
                         </p>
                       </div>
                     </div>
@@ -1491,6 +1430,8 @@ function BayWithReviewMode({ session, status, router }: {
                   <ProjectReviewRequest
                     projectID={selectedProject.projectID}
                     isInReview={selectedProject.in_review}
+                    isShipped={selectedProject.shipped}
+                    isViral={selectedProject.viral}
                     onRequestSubmitted={(updatedProject, review) => {
                       // Update the project in the projects array
                       setProjects(prevProjects => 
@@ -1528,10 +1469,34 @@ function BayWithReviewMode({ session, status, router }: {
                     }}
                   />
                   
-                  {selectedProject.hackatime && (
+                  {/* Hackatime Project Links Section for Mobile */}
+                  {selectedProject.hackatimeLinks && selectedProject.hackatimeLinks.length > 0 && (
                     <div className="bg-gray-50 p-4 rounded-lg">
-                      <h3 className="text-sm font-medium text-gray-700 mb-2">Hackatime Project</h3>
-                      <p className="text-base text-gray-900">{selectedProject.hackatime}</p>
+                      <h3 className="text-sm font-medium text-gray-700 mb-3">
+                        Hackatime Project Links
+                      </h3>
+                      <div className="bg-white rounded border">
+                        {/* Table Header */}
+                        <div className="grid grid-cols-3 gap-4 p-3 border-b bg-gray-50 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <div>PROJECT</div>
+                          <div className="text-center">RAW</div>
+                          <div className="text-center">APPROVED</div>
+                        </div>
+                        {/* Table Rows */}
+                        {selectedProject.hackatimeLinks.map((link, index) => (
+                          <div key={link.id} className="grid grid-cols-3 gap-4 p-3 border-b last:border-b-0 text-sm">
+                            <div className="font-medium text-gray-900">{link.hackatimeName}</div>
+                            <div className="text-center text-gray-600">{link.rawHours}h</div>
+                            <div className="text-center">
+                              {link.hoursOverride !== null && link.hoursOverride !== undefined ? (
+                                <span className="text-blue-600 font-medium">{link.hoursOverride}h</span>
+                              ) : (
+                                <span className="text-gray-400">—</span>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
                   
@@ -1778,6 +1743,14 @@ type ProjectModalProps = Partial<ProjectType> & {
 function ProjectModal(props: ProjectModalProps): ReactElement {
   const isCreate = props.modalTitle?.toLowerCase().includes('create');
   const [isDeleteConfirmModalOpen, setIsDeleteConfirmModalOpen] = useState<boolean>(false);
+  const [selectedHackatimeProjects, setSelectedHackatimeProjects] = useState<string[]>([]);
+  
+  // Reset selected projects when modal opens for creation
+  useEffect(() => {
+    if (props.isOpen && isCreate) {
+      setSelectedHackatimeProjects([]);
+    }
+  }, [props.isOpen, isCreate]);
   
   // Filter out already added projects for create mode
   const availableHackatimeProjects = useMemo(() => {
@@ -1798,14 +1771,16 @@ function ProjectModal(props: ProjectModalProps): ReactElement {
     
     // Collect all hackatime project names that are already used
     allProjects.forEach((project: ProjectType) => {
-      if (project.hackatime) {
-        usedHackatimeProjects.push(project.hackatime);
+      if (project.hackatimeLinks && project.hackatimeLinks.length > 0) {
+        project.hackatimeLinks.forEach(link => {
+          usedHackatimeProjects.push(link.hackatimeName);
+        });
       }
     });
     
     // Add only unused projects to the filtered map
     Object.entries(props.hackatimeProjects).forEach(([label, projectName]) => {
-      if (!usedHackatimeProjects.includes(projectName)) {
+      if (!usedHackatimeProjects.includes(projectName) && projectName !== '<<LAST_PROJECT>>') {
         filtered[label] = projectName;
       }
     });
@@ -1909,56 +1884,34 @@ function ProjectModal(props: ProjectModalProps): ReactElement {
                   <input type="checkbox" checked={!!props.in_review} readOnly disabled /> In Review
                 </label>
               </div>
-              
-              {/* Delete Project Section - Disabled for all users in Bay */}
-              <div className="mb-5 bg-gray-50 p-4 rounded-lg border-l-4 border-red-500">
-                <h3 className="text-sm font-medium text-gray-700 mb-3">Danger Zone</h3>
-                <div className="flex flex-col gap-2">
-                  <button
-                    type="button"
-                    className="px-4 py-2 bg-gray-200 text-gray-500 cursor-not-allowed font-medium rounded transition-colors focus:outline-none flex items-center gap-2"
-                    disabled={true}
-                  >
-                    <Icon glyph="delete" size={16} />
-                    <span>Delete Project</span>
-                  </button>
-                  
-                  <p className="text-xs text-gray-500 italic">Sorry, you cannot unlink your hackatime project from Shipwrecked.</p>
-                </div>
-              </div>
             </>
           )}
           
-          <div className="mb-5 bg-gray-50 p-4 rounded-lg">
-            <FormSelect 
-              fieldName='hackatime'
-              placeholder={
-                props.isLoadingHackatime 
-                  ? 'Loading projects...' 
-                  : Object.keys(props.hackatimeProjects).length === 0
-                    ? 'No Hackatime projects found'
-                    : 'Select a Hackatime Project'
-              }
-              required
-              values={availableHackatimeProjects}
-              {...(props.hackatime && { 
-                defaultValue: props.hackatime
-              })}
-              disabled={!isCreate || props.isLoadingHackatime || Object.keys(props.hackatimeProjects).length === 0}
-            >
-              Your Hackatime Project
-            </FormSelect>
-          </div>
+          {isCreate ? (
+            <div className="mb-5 bg-gray-50 p-4 rounded-lg">
+              <HackatimeMultiSelect
+                availableProjects={availableHackatimeProjects}
+                selectedProjects={selectedHackatimeProjects}
+                onSelectionChange={setSelectedHackatimeProjects}
+                isLoading={props.isLoadingHackatime}
+                disabled={props.isLoadingHackatime || Object.keys(props.hackatimeProjects).length === 0}
+              />
+            </div>
+          ) : null}
           
           {/* Fixed button at bottom of modal */}
           <div 
-            className="sticky bottom-0 left-0 right-0 p-4 mt-4 bg-white border-t border-gray-200 z-10"
+            className="sticky bottom-0 left-0 right-0 p-4 mt-4 bg-white border-t border-gray-200 z-20"
             style={{ bottom: "-6%"}}
           >
             <button
               type="submit"
-              className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded transition-colors focus:outline-none flex items-center justify-center gap-2"
-              disabled={props.pending || props.isLoadingHackatime}
+              className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded transition-colors focus:outline-none flex items-center justify-center gap-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              disabled={
+                props.pending || 
+                props.isLoadingHackatime || 
+                (isCreate && selectedHackatimeProjects.length === 0)
+              }
             >
               {isCreate ? "Create Project" : "Save Changes"}
             </button>
@@ -1999,5 +1952,169 @@ function ProjectModal(props: ProjectModalProps): ReactElement {
         </div>
       </Modal>
     </>
+  );
+}
+
+// Custom Multi-Select Component for Hackatime Projects
+function HackatimeMultiSelect({
+  availableProjects,
+  selectedProjects,
+  onSelectionChange,
+  isLoading,
+  disabled
+}: {
+  availableProjects: Record<string, string>;
+  selectedProjects: string[];
+  onSelectionChange: (selected: string[]) => void;
+  isLoading: boolean;
+  disabled: boolean;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [dropdownDirection, setDropdownDirection] = useState<'down' | 'up'>('down');
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // Determine dropdown direction based on available space
+  const handleToggleDropdown = () => {
+    if (!isOpen && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const spaceAbove = rect.top;
+      
+      // If there's less than 200px below but more than 200px above, open upward
+      if (spaceBelow < 200 && spaceAbove > 200) {
+        setDropdownDirection('up');
+      } else {
+        setDropdownDirection('down');
+      }
+    }
+    setIsOpen(!isOpen);
+  };
+
+  const handleToggleProject = (projectName: string) => {
+    if (selectedProjects.includes(projectName)) {
+      onSelectionChange(selectedProjects.filter(p => p !== projectName));
+    } else {
+      onSelectionChange([...selectedProjects, projectName]);
+    }
+  };
+
+  const handleRemoveProject = (projectName: string) => {
+    onSelectionChange(selectedProjects.filter(p => p !== projectName));
+  };
+
+  const availableEntries = Object.entries(availableProjects);
+  const unselectedProjects = availableEntries.filter(([_, projectName]) => 
+    !selectedProjects.includes(projectName)
+  );
+
+  return (
+    <div className="w-full mb-8">
+      <label className="text-lg font-semibold text-left">
+        Your Hackatime Projects
+        <p className="text-red-500 inline">*</p>
+      </label>
+      
+      {/* Selected Projects Display */}
+      {selectedProjects.length > 0 && (
+        <div className="mt-2 mb-3">
+          <div className="flex flex-wrap gap-2">
+            {selectedProjects.map(projectName => {
+              const displayLabel = availableEntries.find(([_, name]) => name === projectName)?.[0] || projectName;
+              return (
+                <div
+                  key={projectName}
+                  className="flex items-center gap-2 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
+                >
+                  <span>{displayLabel}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveProject(projectName)}
+                    className="text-blue-600 hover:text-blue-800 font-bold"
+                    disabled={disabled}
+                  >
+                    ×
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Dropdown for adding more projects */}
+      {unselectedProjects.length > 0 && (
+        <div className="relative" ref={dropdownRef}>
+          <button
+            ref={buttonRef}
+            type="button"
+            onClick={handleToggleDropdown}
+            disabled={disabled || isLoading}
+            className="w-full px-4 py-2 bg-gray-100 rounded outline-1 outline-gray-200 text-left flex justify-between items-center disabled:bg-gray-200"
+          >
+            <span className="text-gray-600">
+              {isLoading 
+                ? 'Loading projects...' 
+                : selectedProjects.length === 0 
+                  ? 'Select Hackatime Projects'
+                  : 'Add more projects...'
+              }
+            </span>
+            <span className="text-gray-400">▼</span>
+          </button>
+
+          {isOpen && !disabled && !isLoading && (
+            <div className={`absolute z-50 w-full bg-white border border-gray-300 rounded shadow-lg max-h-60 overflow-y-auto ${
+              dropdownDirection === 'up' ? 'bottom-full mb-1' : 'top-full mt-1'
+            }`}>
+              {unselectedProjects.map(([displayLabel, projectName]) => (
+                <button
+                  key={projectName}
+                  type="button"
+                  onClick={() => {
+                    handleToggleProject(projectName);
+                    setIsOpen(false);
+                  }}
+                  className="w-full px-4 py-2 text-left hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+                >
+                  {displayLabel}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Hidden inputs for form submission */}
+      {selectedProjects.map(projectName => (
+        <input
+          key={projectName}
+          type="hidden"
+          name="hackatimeProjects"
+          value={projectName}
+        />
+      ))}
+
+      {/* Validation message */}
+      {selectedProjects.length === 0 && (
+        <p className="text-sm text-gray-500 mt-1">
+          Please select at least one Hackatime project
+        </p>
+      )}
+    </div>
   );
 }

@@ -2,7 +2,7 @@
 import styles from './page.module.css';
 import Modal from '@/components/common/Modal';
 import Toast from '@/components/common/Toast';
-import { useState, useEffect, useActionState, useContext, useMemo, ReactElement, useRef } from 'react';
+import { useState, useEffect, useActionState, useContext, useMemo, ReactElement, useRef, useCallback } from 'react';
 import type { FormSave } from '@/components/form/FormInput';
 import { Project } from '@/components/common/Project';
 import FormSelect from '@/components/form/FormSelect';
@@ -159,6 +159,94 @@ function getProjectHackatimeHours(project: ProjectType): number {
   return project?.rawHours || 0;
 }
 
+// Centralized function to calculate all progress metrics
+function calculateProgressMetrics(projects: ProjectType[]) {
+  if (!projects || !Array.isArray(projects)) {
+    return {
+      shippedHours: 0,
+      viralHours: 0,
+      otherHours: 0,
+      totalHours: 0,
+      totalPercentage: 0,
+      rawHours: 0,
+      currency: 0
+    };
+  }
+
+  let shippedHours = 0;
+  let viralHours = 0;
+  let otherHours = 0;
+  let rawHours = 0;
+  let currency = 0;
+
+  // Get all projects sorted by hours for both calculations
+  const allProjectsWithHours = projects
+    .map(project => ({
+      project,
+      hours: getProjectHackatimeHours(project)
+    }))
+    .sort((a, b) => b.hours - a.hours);
+
+  // Get top 4 projects for island percentage calculation
+  const top4Projects = allProjectsWithHours.slice(0, 4);
+  
+  // Calculate island percentage from only top 4 projects
+  top4Projects.forEach(({ project, hours }) => {
+    // Cap hours per project at 15
+    let cappedHours = Math.min(hours, 15);
+    
+    // If the project is viral, it counts as 15 hours
+    if (project?.viral === true) {
+      viralHours += 15;
+    } 
+    // If it's shipped but not viral
+    else if (project?.shipped === true) {
+      shippedHours += cappedHours;
+    } 
+    // Not shipped and not viral
+    else {
+      // Cap non-shipped projects at 14.75 hours
+      otherHours += Math.min(cappedHours, 14.75);
+    }
+  });
+
+  // Calculate clamshells from all projects
+  const phi = (1 + Math.sqrt(5)) / 2; // Golden ratio ≈ 1.618
+  const top4ProjectIds = new Set(top4Projects.map(({ project }) => project.projectID));
+  
+  allProjectsWithHours.forEach(({ project, hours }) => {
+    rawHours += hours;
+    
+    if (project?.shipped === true) {
+      if (top4ProjectIds.has(project.projectID)) {
+        // Top 4 projects: clamshells for hours beyond 15 (no cap)
+        if (hours > 15) {
+          currency += (hours - 15) * (phi * 10);
+        }
+      } else {
+        // All other shipped projects: clamshells for ALL hours
+        currency += hours * (phi * 10);
+      }
+    }
+  });
+
+  // Calculate total hours (capped at 60 for percentages)
+  const totalHours = Math.min(shippedHours + viralHours + otherHours, 60);
+  
+  // Total progress percentage (capped at 100%)
+  const totalPercentage = Math.min((totalHours / 60) * 100, 100);
+
+  return {
+    shippedHours,
+    viralHours,
+    otherHours,
+    totalHours,
+    totalPercentage,
+    rawHours: Math.round(rawHours),
+    currency: Math.floor(currency)
+  };
+}
+
 // Project Detail Component
 function ProjectDetail({ 
   project, 
@@ -195,7 +283,6 @@ function ProjectDetail({
     
     // If viral, it's 15 hours (25% toward the 60-hour goal)
     if (projectFlags?.viral === true) {
-      console.log(`ProjectDetail: ${project.name} is viral, returning 15 hours`);
       return 15;
     }
     
@@ -512,50 +599,143 @@ function BayWithReviewMode({ session, status, router }: {
   // Check if user is admin
   const isAdmin = session?.user?.role === 'Admin' || session?.user?.isAdmin === true;
 
+  // Calculate all progress metrics using centralized function
+  const progressMetrics = useMemo(() => {
+    return calculateProgressMetrics(projects);
+  }, [projects]);
+  
+  // Extract currency separately to avoid object reference issues
+  const currency = useMemo(() => progressMetrics.currency, [progressMetrics.currency]);
+  
+  // Extract percentage separately to avoid object reference issues
+  const percentage = useMemo(() => progressMetrics.totalPercentage, [progressMetrics.totalPercentage]);
+
+  // Animation state for clamshell value and percentage
+  const [animatedClamshells, setAnimatedClamshells] = useState(0);
+  const [animatedPercentage, setAnimatedPercentage] = useState(0);
+  const [isGlowing, setIsGlowing] = useState(false);
+  const animationRef = useRef<number | null>(null);
+  const lastCurrency = useRef<number>(0);
+  const currentCurrency = useRef<number>(0);
+  const lastPercentage = useRef<number>(0);
+  const currentPercentage = useRef<number>(0);
+  const isAnimatingRef = useRef<boolean>(false);
+
+  // Simple animation function that doesn't depend on React state
+  const startAnimation = useCallback((targetCurrency: number, targetPercentage: number) => {
+    // Don't start if already animating
+    if (isAnimatingRef.current) {
+      return;
+    }
+
+    // Cancel any existing animation
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+    }
+
+    isAnimatingRef.current = true;
+    setIsGlowing(true);
+
+    const duration = 1500;
+    const startTime = performance.now();
+    const startCurrency = 0;
+    const startPercentage = 0;
+    let frameCount = 0; // Add frame counter
+
+    const animateValue = (currentTime: number) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      // Easing function (ease-out cubic)
+      const easedProgress = 1 - Math.pow(1 - progress, 3);
+      const currentCurrencyValue = Math.floor(startCurrency + (targetCurrency - startCurrency) * easedProgress);
+      const currentPercentageValue = Math.round(startPercentage + (targetPercentage - startPercentage) * easedProgress);
+      
+      frameCount++; // Increment frame counter
+      
+      // Only update state every 3 frames to prevent too many re-renders
+      if (frameCount % 3 === 0 || progress >= 1) {
+        setAnimatedClamshells(currentCurrencyValue);
+        setAnimatedPercentage(currentPercentageValue);
+      }
+
+      if (progress < 1) {
+        animationRef.current = requestAnimationFrame(animateValue);
+      } else {
+        isAnimatingRef.current = false;
+        setIsGlowing(false);
+        animationRef.current = null;
+      }
+    };
+
+    animationRef.current = requestAnimationFrame(animateValue);
+  }, []);
+
+  // Watch for currency and percentage changes and trigger animation
+  useEffect(() => {
+    // Only update if either value actually changed
+    if (currentCurrency.current !== currency || currentPercentage.current !== percentage) {
+      // Only animate if we're going from 0 to positive values and not already animating
+      if (lastCurrency.current === 0 && lastPercentage.current === 0 && 
+          (currency > 0 || percentage > 0) && !isAnimatingRef.current) {
+        startAnimation(currency, percentage);
+      } else if (!isAnimatingRef.current) {
+        setAnimatedClamshells(currency);
+        setAnimatedPercentage(Math.round(percentage));
+      }
+
+      // Update tracking refs
+      lastCurrency.current = currentCurrency.current;
+      currentCurrency.current = currency;
+      lastPercentage.current = currentPercentage.current;
+      currentPercentage.current = percentage;
+    }
+  }, [currency, percentage, startAnimation]);
+
+  // Cleanup effect
+  useEffect(() => {
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+        animationRef.current = null;
+        isAnimatingRef.current = false;
+      }
+    };
+  }, []);
+
   // Load Hackatime projects once when component mounts or user changes
   useEffect(() => {
     const userId = session?.user?.id;
     const hackatimeId = session?.user?.hackatimeId;
-    // console.log('⚡ Effect triggered.', { userId, loadedForUserId, hackatimeId });
 
     // Skip if no user ID or we've already loaded for this user
     if (!userId || userId === loadedForUserId) {
-      console.log('⏭️ Skipping load:', !userId ? 'no user ID' : 'already loaded for this user');
       return;
     }
 
     // Check Hackatime setup from session... this really shouldn't happen, given our check earlier - but just in case
     if (!hackatimeId) {
-      console.log('⚠️ No Hackatime ID in session, redirecting to setup...');
       router.push('/bay/setup');
       return;
     }
 
     async function loadHackatimeProjects() {
       try {
-        console.log('🚀 Loading Hackatime projects for user:', userId);
         const projectsData = await getHackatimeProjects();
         
         // Ensure we have an array of projects
         const projects = Array.isArray(projectsData) ? projectsData : [];
-        console.log(`📦 Received ${projects.length} Hackatime projects`);
         
         if (projects.length === 0) {
-          console.log('No projects found or invalid data received');
           setHackatimeProjects({});
           setProjectHours({});
           return;
         }
         
-        // Log all project names for debugging
-        // console.log('🔍 Hackatime project names:', projects.map(p => p.name));
-        
         // Create hours map (key: project name, value: hours)
         const hours = Object.fromEntries(
           projects.map((project: HackatimeProject) => [project.name, project.hours || 0])
         );
-        
-        // console.log('⏱️ Hours map:', hours);
         
         // Create an array of projects with hours for sorting
         const projectsWithHours = projects.map((project: HackatimeProject) => ({
@@ -572,8 +752,6 @@ function BayWithReviewMode({ session, status, router }: {
           // Show hours in the dropdown display but store only the name as the value
           projectNames[`${project.hours}h ${project.name}`] = project.name;
         });
-        
-        // console.log('📋 Project names map:', projectNames);
         
         setHackatimeProjects(projectNames);
         setProjectHours(hours);
@@ -595,7 +773,6 @@ function BayWithReviewMode({ session, status, router }: {
   // This ensures the sorting stays current when hours data updates
   useEffect(() => {
     if (Object.keys(projectHours).length > 0) {
-      // console.log('Project hours updated, triggering re-render for sorting');
       // Create a new array reference to force re-render with updated sort order
       setProjects([...projects]);
     }
@@ -741,28 +918,14 @@ function BayWithReviewMode({ session, status, router }: {
 
   // Update total hours whenever projects or projectHours changes
   useEffect(() => {
-    // Only count hours from projects that are in the projects list
-    // console.log('🧮 Calculating total hours for', projects.length, 'projects');
-    // console.log('📊 projectHours keys:', Object.keys(projectHours));
-    
-    // Log hackatime links from projects
-    // console.log('🔗 Project hackatime links:', projects.map(p => ({
-    //   name: p.name,
-    //   hackatimeLinks: p.hackatimeLinks?.map(link => link.hackatimeName) || []
-    // })));
-    
     const total = projects.reduce((sum, project) => {
       // If project is viral, it automatically counts as 15 hours
       if (project.viral) {
-        console.log(`Project ${project.name} is viral, contributing 15 hours`);
         return sum + 15;
       }
       
       // Get hours using our helper function
       let hours = getProjectHackatimeHours(project);
-      
-      // Log the hours lookup for debugging
-      // console.log(`Project ${project.name} hackatimeLinks=${project.hackatimeLinks?.length || 0}, hours=${hours}`);
       
       // Cap hours per project at 15
       let cappedHours = Math.min(hours, 15);
@@ -783,95 +946,61 @@ function BayWithReviewMode({ session, status, router }: {
 
   // Calculate total hours from shipped, viral, and other projects
   const calculateProgressSegments = (): ProgressSegment[] => {
-    // Calculate hours from each type of project
-    let shippedHours = 0;
-    let viralHours = 0;
-    let otherHours = 0;
-
+    // Use centralized metrics
+    const metrics = progressMetrics;
+    
     if (!projects || !Array.isArray(projects)) {
-      console.warn('Projects is null, undefined, or not an array:', projects);
       return [{ value: 100, color: '#e5e7eb', tooltip: 'No projects found', status: 'pending' }];
     }
 
-    projects.forEach(project => {
-      // Skip null or undefined projects
-      if (!project) return;
-      
-      // Get hours using our helper function
-      const hours = getProjectHackatimeHours(project);
-      
-      // Cap hours per project
-      let cappedHours = Math.min(hours, 15);
-      
-      // If the project is viral, it counts as 15 hours
-      if (project?.viral === true) {
-        viralHours += 15;
-      } 
-      // If it's shipped but not viral
-      else if (project?.shipped === true) {
-        shippedHours += cappedHours;
-      } 
-      // Not shipped and not viral
-      else {
-        // Cap non-shipped projects at 14.75 hours
-        otherHours += Math.min(cappedHours, 14.75);
-      }
-    });
-
-    // Calculate total hours (capped at 60 for percentages)
-    const totalHours = Math.min(shippedHours + viralHours + otherHours, 60);
-    
     // Convert hours to percentages (based on 60-hour goal)
-    const shippedPercentage = (shippedHours / 60) * 100;
-    const viralPercentage = (viralHours / 60) * 100;
-    const otherPercentage = (otherHours / 60) * 100;
-    
-    // Total progress percentage (capped at 100%)
-    const totalPercentage = Math.min((totalHours / 60) * 100, 100);
+    const shippedPercentage = (metrics.shippedHours / 60) * 100;
+    const viralPercentage = (metrics.viralHours / 60) * 100;
+    const otherPercentage = (metrics.otherHours / 60) * 100;
     
     // Create segments array
     const segments: ProgressSegment[] = [];
     
     // Add shipped segment if there are hours
-    if (shippedHours > 0) {
+    if (metrics.shippedHours > 0) {
       segments.push({
         value: shippedPercentage,
         color: '#10b981', // Green
         label: 'Shipped',
-        tooltip: `${shippedHours.toFixed(1)} hours from shipped projects`,
+        tooltip: `${metrics.shippedHours.toFixed(1)} hours from shipped projects`,
         animated: false,
         status: 'completed'
       });
     }
     
     // Add viral segment if there are hours
-    if (viralHours > 0) {
+    if (metrics.viralHours > 0) {
       segments.push({
         value: viralPercentage,
         color: '#f59e0b', // Gold/Yellow
         label: 'Viral',
-        tooltip: `${viralHours.toFixed(1)} hours from viral projects`,
+        tooltip: `${metrics.viralHours.toFixed(1)} hours from viral projects`,
         animated: false,
         status: 'completed'
       });
     }
     
     // Add other segment if there are hours
-    if (otherHours > 0) {
+    if (metrics.otherHours > 0) {
       segments.push({
         value: otherPercentage,
         color: '#3b82f6', // Blue
         label: 'In Progress',
-        tooltip: `${otherHours.toFixed(1)} hours from in-progress projects`,
+        tooltip: `${metrics.otherHours.toFixed(1)} hours from in-progress projects`,
         animated: true,
         status: 'in-progress'
       });
     }
     
     // Add remaining segment if total < 100%
-    if (totalPercentage < 100) {
+    if (metrics.totalPercentage < 100) {
       segments.push({
-        value: 100 - totalPercentage,
+        value: 100 - metrics.totalPercentage,
         color: '#e5e7eb', // Light gray
         tooltip: 'Remaining progress needed',
         status: 'pending'
@@ -897,41 +1026,67 @@ function BayWithReviewMode({ session, status, router }: {
     }, 0);
   };
 
-
-
-
   return (
     <div className={styles.container}>
       <div className={styles.progressSection}>
-        <div className="flex items-center justify-between w-full max-w-xl mx-auto py-1 md:py-2">
-          <div className="flex-grow px-4 sm:px-0">
-            <div className="flex items-center justify-center gap-3">
-              <Tooltip content={`You've built ${projects.length} project${projects.length !== 1 ? 's' : ''}, and grinded ${calculateTotalRawHours()} hour${calculateTotalRawHours() !== 1 ? 's' : ''} thus far`}>
-                <span className="text-4xl md:text-6xl flex items-center">👤</span>
-              </Tooltip>
-              <div 
-                className="flex-grow cursor-pointer mt-5" 
-                onClick={() => setIsProgressModalOpen(true)}
-                title="When this progress bar reaches 100%, you're eligible for going to the island!"
-              >
-                <MultiPartProgressBar 
-                  segments={calculateProgressSegments()}
-                  max={100}
-                  height={10}
-                  rounded={true}
-                  showLabels={false}
-                  tooltipPosition="top"
-                />
-                <div className="text-center">
-                  <h3 className="font-medium text-base">
-                    {totalHours}%
-                  </h3>
+        <h2 className="text-2xl font-bold text-center text-gray-800 mb-4 mt-2.5 md:mt-1">Your Voyage</h2>
+        <div className="border border-gray-300 rounded-lg p-4 bg-white max-w-xl mx-auto">
+          <div className="flex items-center justify-between w-full py-1 md:py-2">
+            <div className="flex-grow px-4 sm:px-0">
+              <div className="flex items-center justify-center gap-3">
+                <Tooltip content={`You've built ${projects.length} project${projects.length !== 1 ? 's' : ''}, and grinded ${progressMetrics.rawHours} hour${progressMetrics.rawHours !== 1 ? 's' : ''} thus far`}>
+                  <img src="/ship.png" alt="Ship" className="h-16 flex items-center" />
+                </Tooltip>
+                <div 
+                  className="flex-grow cursor-pointer" 
+                  onClick={() => setIsProgressModalOpen(true)}
+                  title="When this progress bar reaches 100%, you're eligible for going to the island!"
+                >
+                  <MultiPartProgressBar 
+                    segments={calculateProgressSegments()}
+                    max={100}
+                    height={10}
+                    rounded={true}
+                    showLabels={false}
+                    tooltipPosition="top"
+                  />
+                </div>
+                <Tooltip content="Your prize - a fantastic island adventure with friends">
+                  <img src="/island.png" alt="Island" className="w-16 h-16 flex items-center" />
+                </Tooltip>
+              </div>
+            </div>
+          </div>
+          
+          {/* Progress + Clamshells Section */}
+          <div className="flex items-center justify-center gap-6 mt-4">
+            {/* Progress representation */}
+            <Tooltip content={`Believe it or not, you are ${Math.round(progressMetrics.totalPercentage)}% of the way to the Island!!!`}>
+              <div className="flex flex-col items-center justify-center w-32 bg-gray-100 rounded-lg p-4" style={{height: '108px'}}>
+                <div className={`text-3xl font-bold text-gray-700 ${isGlowing ? 'percentage-animated' : ''}`}>{animatedPercentage}%</div>
+                <div className={`text-xs text-gray-500 ${isGlowing ? 'percentage-animated' : ''}`}>Island Progress</div>
+              </div>
+            </Tooltip>
+            
+            {/* Plus sign */}
+            <div className={`text-4xl font-bold text-gray-400 ${isGlowing ? 'percentage-animated' : ''}`}>+</div>
+            
+            {/* Clamshells */}
+            <Tooltip content="Approved & shipped hours that exceed 15h per project are converted into Clamshells.  These funds can be applied to travel costs, and also potentially converted to grantable prizes!">
+              <div className="relative flex items-center justify-center bg-gray-100 rounded-lg p-4 w-32" style={{height: '108px', overflow: 'hidden'}}>
+                <div className="relative w-full h-full flex items-center justify-center">
+                  <img 
+                    src="/clamshell.png"
+                    alt="Clamshell"
+                    className={`w-full h-full object-contain ${isGlowing ? 'clamshell-animated' : ''}`}
+                    style={{transform: 'rotate(180deg)'}}
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <span className="font-bold text-base text-center text-black" style={{marginTop: '-3px'}}>{animatedClamshells}</span>
+                  </div>
                 </div>
               </div>
-              <Tooltip content="Your prize - a fantastic island adventure with friends">
-                <span className="text-4xl md:text-6xl flex items-center">🏝️</span>
-              </Tooltip>
-            </div>
+            </Tooltip>
           </div>
         </div>
       </div>
@@ -987,7 +1142,7 @@ function BayWithReviewMode({ session, status, router }: {
           </div>
           
           <p>
-            Your current progress: <span className="font-bold">{totalHours}%</span> toward the 60-hour requirement
+            Your current progress: <span className="font-bold">{Math.round(progressMetrics.totalPercentage)}%</span> toward the 60-hour requirement
           </p>
         </div>
       </Modal>
@@ -1250,13 +1405,6 @@ function BayWithReviewMode({ session, status, router }: {
                   );
                 }
                 
-                console.log(`Rendering ProjectDetail for ${selectedProject.name}:`, {
-                  hackatimeLinks: selectedProject.hackatimeLinks?.length || 0,
-                  hours: getProjectHackatimeHours(selectedProject),
-                  viral: !!selectedProject.viral,
-                  shipped: !!selectedProject.shipped
-                });
-                
                 // Create an object with all the necessary properties
                 const projectWithProps = {
                   ...selectedProject,
@@ -1282,8 +1430,6 @@ function BayWithReviewMode({ session, status, router }: {
                         rawHours: selectedProject.rawHours,
                         hoursOverride: selectedProject.hoursOverride
                       };
-                      
-                      console.log("Opening edit form with data:", projectWithDefaults);
                       
                       // Update the form state
                       setInitialEditState(projectWithDefaults);

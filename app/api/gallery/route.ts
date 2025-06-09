@@ -29,6 +29,13 @@ export async function GET(request: Request) {
         chat_enabled: true,
         userId: true,
         hackatimeLinks: true,
+        user: {
+          select: {
+            name: true,
+            slack: true,
+            image: true
+          }
+        },
         _count: {
           select: {
             upvotes: true,

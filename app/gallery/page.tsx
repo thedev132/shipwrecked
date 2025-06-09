@@ -7,6 +7,9 @@ import ImageWithFallback from '@/components/common/ImageWithFallback';
 import Icon from '@hackclub/icons';
 import dynamic from 'next/dynamic';
 import Toast from '@/components/common/Toast';
+import Image from 'next/image';
+import { createAvatar } from '@dicebear/core';
+import { thumbs } from '@dicebear/collection';
 
 // Dynamically import the chat modal to avoid SSR issues with socket.io
 const ProjectChatModal = dynamic(() => import('@/components/common/ProjectChatModal'), {
@@ -28,6 +31,11 @@ interface Project {
   upvoteCount: number;
   userUpvoted: boolean;
   chat_enabled: boolean;
+  user: {
+    name: string | null;
+    slack: string | null;
+    image: string | null;
+  };
   hackatimeLinks: {
     id: string;
     hackatimeName: string;
@@ -406,41 +414,69 @@ export default function Gallery() {
 
                 {/* Project Info */}
                 <div className="p-4">
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="text-lg font-semibold text-gray-900 truncate flex-1 mr-2">
-                      {project.name}
-                    </h3>
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      {/* Upvote button */}
-                      <button
-                        onClick={() => handleUpvote(project.projectID)}
-                        disabled={upvotingProjects.has(project.projectID)}
-                        className={`flex items-center justify-center gap-1 px-2 py-1 rounded-full text-sm font-medium transition-all min-w-[60px] ${
-                          project.userUpvoted
-                            ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
-                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                        } ${
-                          upvotingProjects.has(project.projectID)
-                            ? 'opacity-50 cursor-not-allowed'
-                            : 'cursor-pointer hover:scale-105'
-                        }`}
-                      >
-                        <span 
-                          className={`text-lg ${
+                  <div className="flex flex-col">
+                    <div className="flex flex-row items-center gap-2">
+                      <h3 className="text-lg font-semibold text-gray-900 truncate">
+                        {project.name}
+                      </h3>
+                      {project.rawHours > 0 && (
+                            <span className="text-sm text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
+                              {project.rawHours}h
+                            </span>
+                          )}
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                          <Image 
+                            src={project.user.image ? project.user.image : createAvatar(thumbs, { seed: project.userId }).toDataUri()} 
+                            alt={project.user.name || ''} 
+                            width={20}
+                            height={20}
+                            className="w-5 h-5 rounded-full"
+                          />
+                          <span className="text-sm text-gray-600">
+                            {project.user.slack ? (
+                              <a 
+                                href={`https://hackclub.slack.com/app_redirect?channel=${project.user.slack}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="hover:underline decoration-blue-500 decoration-wavy"
+                              >
+                                {project.user.name || 'Anonymous'}
+                              </a>
+                            ) : (
+                              project.user.name || 'Anonymous'
+                            )}
+                          </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {/* Upvote button */}
+                        <button
+                          onClick={() => handleUpvote(project.projectID)}
+                          disabled={upvotingProjects.has(project.projectID)}
+                          className={`flex items-center justify-center gap-1 px-2 py-1 rounded-full text-sm font-medium transition-all min-w-[60px] ${
                             project.userUpvoted
-                              ? 'text-yellow-500'
-                              : 'text-gray-400'
+                              ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
+                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          } ${
+                            upvotingProjects.has(project.projectID)
+                              ? 'opacity-50 cursor-not-allowed'
+                              : 'cursor-pointer hover:scale-105'
                           }`}
                         >
-                          ★
-                        </span>
-                        <span className="tabular-nums">{project.upvoteCount}</span>
-                      </button>
-                      {project.rawHours > 0 && (
-                        <span className="text-sm text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
-                          {project.rawHours}h
-                        </span>
-                      )}
+                          <span 
+                            className={`text-lg ${
+                              project.userUpvoted
+                                ? 'text-yellow-500'
+                                : 'text-gray-400'
+                            }`}
+                          >
+                            ★
+                          </span>
+                          <span className="tabular-nums">{project.upvoteCount}</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
 

@@ -283,7 +283,7 @@ export default function Header({ session, status }: HeaderProps) {
                 {status === "authenticated" && (
                     <>
                         <img
-                            src={session?.user.image ? session.user.image : createAvatar(thumbs, { seed: session?.user.email ?? "" }).toDataUri()}
+                            src={session?.user.image ? session.user.image : createAvatar(thumbs, { seed: session?.user.id }).toDataUri()}
                             alt={session?.user.email!}
                             className="w-10 h-10 rounded-full border-2 border-white shadow"
                         />

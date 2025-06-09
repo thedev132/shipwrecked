@@ -408,8 +408,6 @@ function ReviewPage() {
   if (status === "loading") {
     return <Loading />;
   }
-
-
   
   // Authentication and access control is now handled by the layout
   return (

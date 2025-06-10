@@ -16,6 +16,11 @@ export async function GET(
     }
 
     const { projectId } = await params;
+    
+    // Get optional 'since' timestamp from query parameters
+    const { searchParams } = new URL(request.url);
+    const sinceParam = searchParams.get('since');
+    const sinceTimestamp = sinceParam ? new Date(sinceParam) : null;
 
     // Check if the project exists and has chat enabled
     const project = await prisma.project.findUnique({
@@ -24,6 +29,7 @@ export async function GET(
       },
       select: {
         chat_enabled: true,
+        userId: true, // Include userId to determine author
       }
     });
 
@@ -47,26 +53,37 @@ export async function GET(
       return NextResponse.json([]);
     }
 
-    // Get messages from the chat room (limit to last 100 messages)
+    // Build the where clause for messages
+    const whereClause: any = {
+      roomId: chatRoom.id,
+    };
+
+    // If a since timestamp is provided, only get messages newer than that
+    if (sinceTimestamp && !isNaN(sinceTimestamp.getTime())) {
+      whereClause.createdAt = {
+        gt: sinceTimestamp,
+      };
+    }
+
+    // Get messages from the chat room
     const messages = await prisma.chatMessage.findMany({
-      where: {
-        roomId: chatRoom.id,
-      },
+      where: whereClause,
       orderBy: {
-        createdAt: 'desc', // Get most recent first
+        createdAt: sinceTimestamp ? 'asc' : 'desc', // If since timestamp, get oldest first; otherwise newest first
       },
-      take: 100, // Limit to 100 messages
+      take: sinceTimestamp ? undefined : 100, // If since timestamp, get all new messages; otherwise limit to 100
     });
 
-    // Reverse to get chronological order (oldest to newest) for display
-    const chronologicalMessages = messages.reverse();
+    // If no since timestamp, reverse to get chronological order (oldest to newest) for display
+    const chronologicalMessages = sinceTimestamp ? messages : messages.reverse();
 
-    // Format messages for the client - only include userId, no real user data
+    // Format messages for the client - include isAuthor flag
     const formattedMessages = chronologicalMessages.map(message => ({
       id: message.id,
       content: message.content,
       userId: message.userId,
       createdAt: message.createdAt.toISOString(),
+      isAuthor: message.userId === project.userId, // Flag to indicate if message is from project author
     }));
 
     return NextResponse.json(formattedMessages);
@@ -117,6 +134,7 @@ export async function POST(
           },
           select: {
             chat_enabled: true,
+            userId: true, // Include userId to determine author
           }
         });
 
@@ -160,6 +178,7 @@ export async function POST(
           content: message.content,
           userId: message.userId,
           createdAt: message.createdAt.toISOString(),
+          isAuthor: message.userId === project.userId, // Flag to indicate if message is from project author
         };
 
         return NextResponse.json(formattedMessage);

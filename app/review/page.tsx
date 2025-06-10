@@ -370,6 +370,20 @@ function ReviewPage() {
       setFilteredProjects(projects);
     }
   }, [projects, activeFilter]);
+
+  // Close modal when escape key is pressed
+  useEffect(() => {
+    const handleEsc = (event: KeyboardEvent) => {
+       if (event.key === 'Escape') {
+        setSelectedProject(null);
+      }
+    };
+    window.addEventListener('keydown', handleEsc);
+
+    return () => {
+      window.removeEventListener('keydown', handleEsc);
+    };
+  }, []);
   
   // Function to fetch projects in review - moved outside useEffect for reusability
   const fetchProjectsInReview = async () => {

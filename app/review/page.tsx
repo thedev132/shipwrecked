@@ -382,7 +382,7 @@ function ReviewPage() {
   
   // Add filter state
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
-  
+  const [searchTerm, setSearchTerm] = useState('');
   // Auto-enable review mode when the component mounts
   useEffect(() => {
     enableReviewMode();
@@ -400,12 +400,19 @@ function ReviewPage() {
   useEffect(() => {
     if (activeFilter) {
       setFilteredProjects(projects.filter(project => 
-        project.latestReview?.reviewType === activeFilter
+        project.latestReview?.reviewType === activeFilter &&
+        (project.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (project.user.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()))
       ));
     } else {
-      setFilteredProjects(projects);
+      setFilteredProjects(projects.filter(project => 
+        project.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (project.user.name?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+      ));
     }
-  }, [projects, activeFilter]);
+  }, [projects, activeFilter, searchTerm]);
 
   // Close modal when escape key is pressed
   useEffect(() => {
@@ -546,6 +553,19 @@ function ReviewPage() {
             </div>
           </div>
         )}
+
+        <div className="relative mb-6">
+            <input
+              type="text"
+              placeholder="Search project reviews..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full p-3 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <span className="absolute right-3 top-3 text-gray-400">
+              🔍
+            </span>
+        </div>
         
         {isLoading ? (
           <div className="flex justify-center items-center h-64">

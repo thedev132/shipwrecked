@@ -5,6 +5,8 @@ import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { toast, Toaster } from 'sonner';
 import UserCategoryDisplay from '@/components/common/UserCategoryDisplay';
+import { calculateProgressMetrics, getProjectHackatimeHours, ProgressMetrics } from '@/app/bay/page';
+import { ProjectType } from '@/app/api/projects/route';
 
 // Force dynamic rendering to prevent prerendering errors during build
 export const dynamic = 'force-dynamic';
@@ -31,6 +33,7 @@ interface User {
     category: 'whale' | 'shipper' | 'newbie';
     description: string;
   } | null;
+  projects: ProjectType[],
 }
 
 // Create a wrapper component that uses Suspense
@@ -67,7 +70,11 @@ function AdminUsersContent() {
   const filteredUsers = users.filter(user => 
     (user.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) || 
     (user.email?.toLowerCase() || '').includes(searchTerm.toLowerCase())
-  );
+  ).map(user => ({ ...user, stats: calculateProgressMetrics(user.projects) })).sort((a, b) => {
+	  let percent = b.stats.totalPercentage - a.stats.totalPercentage;
+	  let viral = +!!b.projects.find(x=>x.viral) - +!!a.projects.find(x=>x.viral);
+	  return percent === 0 ? viral : percent;
+  });
 
   // Function to render status badge
   const getUserStatusBadge = (userStatus: UserStatus) => {
@@ -95,6 +102,29 @@ function AdminUsersContent() {
     return (
       <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${bgColor} ${textColor}`}>
         {userStatus === UserStatus.FraudSuspect ? 'Fraud Suspect' : userStatus}
+      </span>
+    );
+  };
+  const getProgressBadge = (user: User & { stats: ProgressMetrics }) => {
+    let bgColor = 'bg-gray-100';
+    let textColor = 'text-gray-800';
+	let label = "";
+
+	if (user.projects.filter(project => getProjectHackatimeHours(project) >= 15).length >= 4) {
+		if (!!user.projects.find(project => project.viral)) {
+			bgColor = "bg-yellow-100";
+			textColor = "text-yellow-800";
+			label = "Invitation";
+		} else {
+			bgColor = 'bg-green-100';
+			textColor = 'text-green-800';
+			label = "Waitlist";
+		}
+	}
+    
+    return (
+      <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${bgColor} ${textColor}`}>
+        {user.stats.totalPercentage.toFixed(1)}%{label.length ? " - " + label : ""}
       </span>
     );
   };
@@ -203,6 +233,9 @@ function AdminUsersContent() {
                     Status
                   </th>
                   <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-20">
+                    Progress
+                  </th>
+                  <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-20">
                     Role
                   </th>
                   <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-24">
@@ -261,6 +294,9 @@ function AdminUsersContent() {
                       </td>
                       <td className="px-3 py-3 whitespace-nowrap">
                         {getUserStatusBadge(user.status)}
+                      </td>
+                      <td className="px-3 py-3 whitespace-nowrap">
+                        {getProgressBadge(user)}
                       </td>
                       <td className="px-3 py-3 whitespace-nowrap">
                         <span className={`px-2 py-1 inline-flex text-xs leading-4 font-semibold rounded-full ${
@@ -354,6 +390,10 @@ function AdminUsersContent() {
                         <div>
                           <span className="text-gray-500 block">Status</span>
                           {getUserStatusBadge(user.status)}
+                        </div>
+                        <div>
+                          <span className="text-gray-500 block">Progress</span>
+                          {getProgressBadge(user)}
                         </div>
                         <div>
                           <span className="text-gray-500 block">Role</span>

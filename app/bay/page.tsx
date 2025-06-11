@@ -142,7 +142,7 @@ async function getHackatimeProjects() {
 }
 
 // Helper to get project hours with our matching logic
-function getProjectHackatimeHours(project: ProjectType): number {
+export function getProjectHackatimeHours(project: ProjectType): number {
   // Safety check for null/undefined project
   if (!project) return 0;
   
@@ -162,8 +162,18 @@ function getProjectHackatimeHours(project: ProjectType): number {
   return project?.rawHours || 0;
 }
 
+export interface ProgressMetrics {
+	shippedHours: number,
+	viralHours: number,
+	otherHours: number,
+	totalHours: number,
+	totalPercentage: number,
+	rawHours: number,
+	currency: number,
+}
+
 // Centralized function to calculate all progress metrics
-function calculateProgressMetrics(projects: ProjectType[]) {
+export function calculateProgressMetrics(projects: ProjectType[]): ProgressMetrics {
   if (!projects || !Array.isArray(projects)) {
     return {
       shippedHours: 0,

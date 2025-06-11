@@ -63,7 +63,48 @@ export async function GET() {
       category: userCategories[user.id] || null
     }));
 
-    return NextResponse.json(usersWithCategories);
+	const usersWithProjects = await Promise.all(usersWithCategories.map(async user => {
+		const projects = await prisma.project.findMany({
+            where: {
+                userId: user.id
+            },
+            include: {
+                hackatimeLinks: true
+            }
+        });
+        
+        // Enhance the project data with computed properties
+        const enhancedProjects = projects.map((project) => {
+            // Get the main Hackatime name (for backwards compatibility)
+            const hackatimeName = project.hackatimeLinks.length > 0 
+                ? project.hackatimeLinks[0].hackatimeName 
+                : '';
+            
+            // Calculate total raw hours from all links, applying individual overrides when available
+            const rawHours = project.hackatimeLinks.reduce(
+                (sum, link) => {
+                    // Use the link's hoursOverride if it exists, otherwise use rawHours
+                    const effectiveHours = (link.hoursOverride !== undefined && link.hoursOverride !== null)
+                        ? link.hoursOverride
+                        : (typeof link.rawHours === 'number' ? link.rawHours : 0);
+                    
+                    return sum + effectiveHours;
+                }, 
+                0
+            );
+            
+            // Return the enhanced project with additional properties
+            return {
+                ...project,
+                hackatimeName,
+                rawHours
+            };
+        });
+
+		return { ...user, projects: enhancedProjects };
+	}));
+
+    return NextResponse.json(usersWithProjects);
   } catch (error) {
     console.error('Error fetching users:', error);
     return NextResponse.json(

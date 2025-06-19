@@ -15,6 +15,7 @@ import Icon from "@hackclub/icons";
 import Modal from '@/components/common/Modal';
 import { toast, Toaster } from 'sonner';
 import FormInput from '@/components/form/FormInput';
+import { ensureHttps } from '@/lib/utils';
 
 interface User {
   id: string;
@@ -359,7 +360,7 @@ function ProjectDetailContent({ params }: { params: { projectId: string } }) {
             <div className="flex flex-col gap-2">
               {project.codeUrl && (
                 <a 
-                  href={project.codeUrl} 
+                  href={ensureHttps(project.codeUrl)} 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-blue-600 hover:underline flex items-center gap-2"
@@ -370,7 +371,7 @@ function ProjectDetailContent({ params }: { params: { projectId: string } }) {
               )}
               {project.playableUrl && (
                 <a 
-                  href={project.playableUrl} 
+                  href={ensureHttps(project.playableUrl)} 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-blue-600 hover:underline flex items-center gap-2"

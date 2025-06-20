@@ -1356,6 +1356,30 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
                     >
                       {""}
                     </FormInput>
+                    <FormInput
+                      fieldName='shipped'
+                      state={projectEditState}
+                      placeholder='shipped'
+                      defaultValue={initialEditState.shipped?.toString() || 'false'}
+                    >
+                      {""}
+                    </FormInput>
+                    <FormInput
+                      fieldName='viral'
+                      state={projectEditState}
+                      placeholder='viral'
+                      defaultValue={initialEditState.viral?.toString() || 'false'}
+                    >
+                      {""}
+                    </FormInput>
+                    <FormInput
+                      fieldName='in_review'
+                      state={projectEditState}
+                      placeholder='in_review'
+                      defaultValue={initialEditState.in_review?.toString() || 'false'}
+                    >
+                      {""}
+                    </FormInput>
                   </span>
                   <div className="mb-5 bg-gray-50 p-4 rounded-lg">
                     <FormInput
@@ -2092,6 +2116,30 @@ function ProjectModal(props: ProjectModalProps): ReactElement {
               state={props.state}
               placeholder='projectID'
               {...(props.projectID && { defaultValue: props.projectID})}
+            >
+              {""}
+            </FormInput>
+            <FormInput
+              fieldName='shipped'
+              state={props.state}
+              placeholder='shipped'
+              defaultValue={props.shipped?.toString() || 'false'}
+            >
+              {""}
+            </FormInput>
+            <FormInput
+              fieldName='viral'
+              state={props.state}
+              placeholder='viral'
+              defaultValue={props.viral?.toString() || 'false'}
+            >
+              {""}
+            </FormInput>
+            <FormInput
+              fieldName='in_review'
+              state={props.state}
+              placeholder='in_review'
+              defaultValue={props.in_review?.toString() || 'false'}
             >
               {""}
             </FormInput>

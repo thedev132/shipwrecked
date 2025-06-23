@@ -2,7 +2,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function IdentityCallback() {
+function IdentityCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<'loading'|'success'|'error'>('loading');
@@ -45,21 +45,34 @@ export default function IdentityCallback() {
   }, [searchParams]);
 
   return (
-    <Suspense>
-        <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+      <div className="bg-white p-8 rounded shadow max-w-md w-full text-center">
+        <h1 className="text-2xl font-bold mb-4">Identity Verification</h1>
+        {status === 'loading' && <p className="mb-4">Verifying your identity...</p>}
+        {status === 'success' && <p className="mb-4 text-green-600">{message}</p>}
+        {status === 'error' && <p className="mb-4 text-red-600">{message}</p>}
+        <button
+          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          onClick={() => router.push('/bay')}
+        >
+          Return to Shipwrecked
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export default function IdentityCallback() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
         <div className="bg-white p-8 rounded shadow max-w-md w-full text-center">
-            <h1 className="text-2xl font-bold mb-4">Identity Verification</h1>
-            {status === 'loading' && <p className="mb-4">Verifying your identity...</p>}
-            {status === 'success' && <p className="mb-4 text-green-600">{message}</p>}
-            {status === 'error' && <p className="mb-4 text-red-600">{message}</p>}
-            <button
-            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            onClick={() => router.push('/bay')}
-            >
-            Return to Shipwrecked
-            </button>
+          <h1 className="text-2xl font-bold mb-4">Identity Verification</h1>
+          <p className="mb-4">Loading...</p>
         </div>
-        </div>
+      </div>
+    }>
+      <IdentityCallbackContent />
     </Suspense>
   );
 } 

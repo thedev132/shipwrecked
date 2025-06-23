@@ -640,9 +640,15 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
   useEffect(() => {
     const getIdentity = async () => {
       const response = await fetch('/api/identity/me');
-      const data = await response.json();
-      if (data?.verification_status === 'verified' || data?.verification_status === 'pending') {
-        setShowIdentityPopup(false);
+      const user = await fetch('/api/users/me');
+      const userData = await user.json();
+      if (userData?.identityToken) {
+          const data = await response.json();
+          if (data?.verification_status === 'verified' || data?.verification_status === 'pending') {
+          setShowIdentityPopup(false);
+        } else {
+          setShowIdentityPopup(true);
+        } 
       } else {
         setShowIdentityPopup(true);
       }

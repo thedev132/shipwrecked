@@ -36,7 +36,6 @@ function IdentityCallbackContent() {
             setMessage('Your submission got rejected! Go to identity.hackclub.com to fix.');
             return;
           }
-          
           setStatus(data2.verification_status === 'verified' ? 'success' :  'error');
           setMessage(data2.verification_status === 'verified' ? 'Identity verified! You may now return to Shipwrecked.' : 'Identity verification failed. Please try again.');
         } else {

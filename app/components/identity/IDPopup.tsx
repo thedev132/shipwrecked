@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Modal from '@/components/common/Modal';
+import Tooltip from '../common/Tooltip';
 
 export default function IDPopup() {
   const [isOpen, setIsOpen] = useState(true);
@@ -15,9 +16,10 @@ export default function IDPopup() {
   return (
     <Modal
       isOpen={isOpen}
-      onClose={() => setIsOpen(false)}
+      onClose={() => null}
       title="Verify Your Identity"
       hideFooter={true}
+      hideCloseButton
     >
       <div className="flex flex-col items-center justify-center p-2">
         {/* Illustration */}

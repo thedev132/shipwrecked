@@ -15,6 +15,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     
+    // ID Service Parameters
     const params = {
       code,
       client_id: process.env.IDENTITY_CLIENT_ID,
@@ -23,6 +24,7 @@ export async function POST(req: NextRequest) {
       grant_type: "authorization_code",
     };
 
+    // Exchange code (from url params) for token
     const response = await fetch(`${process.env.IDENTITY_URL}/oauth/token`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -31,6 +33,7 @@ export async function POST(req: NextRequest) {
 
     const data = await response.json();
     
+    // Update user with token
     await prisma.user.update({
       where: {
         id: session?.user?.id,

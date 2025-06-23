@@ -180,7 +180,7 @@ function SettingsContent() {
     }
   };
 
-  const handleVerifyIdentity = async () => {
+  const getIdentityUrl = async () => {
     const response = await fetch('/api/identity/url');
     const data = await response.json();
     return data.url;
@@ -258,7 +258,7 @@ function SettingsContent() {
                       </span>
                       <button
                         onClick={async () => {
-                          const url = await handleVerifyIdentity();
+                          const url = await getIdentityUrl();
                           window.open(url, '_blank');
                         }}
                         disabled={isRequestingVerification}

@@ -649,12 +649,8 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
     }
 
     if (status !== 'authenticated') return;
-    const lastShown = localStorage.getItem('identityPopupLastShown');
-    const now = Date.now();
-    if (!lastShown || now - parseInt(lastShown, 10) > 24 * 60 * 60 * 1000) {
-      getIdentity();
-      localStorage.setItem('identityPopupLastShown', now.toString());
-    }
+    getIdentity();
+
   }, [status]);
 
   // Check if user is admin

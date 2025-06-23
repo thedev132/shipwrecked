@@ -8,95 +8,44 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// User status enum
-enum UserStatus {
-  Unknown
-  L1
-  L2
-  FraudSuspect
-}
-
-// User role enum
-enum UserRole {
-  User
-  Reviewer
-  Admin
-}
-
-// Review request type enum
-enum ReviewRequestType {
-  ShippedApproval
-  ViralApproval
-  HoursApproval
-  Other
-}
-
-// Audit log event type enum
-enum AuditLogEventType {
-  ProjectCreated
-  ProjectSubmittedForReview
-  ProjectMarkedShipped
-  ProjectMarkedViral
-  ProjectReviewCompleted
-  UserRoleChanged
-  UserVerified
-  UserCreated
-  ProjectDeleted
-  SlackConnected
-  OtherEvent
-}
-
 model Registration {
-  // Personal Info
   id             String   @id @default(cuid())
   email          String   @unique
   firstName      String
   lastName       String
   githubUsername String
   birthday       DateTime
-
-  // Address
-  addressL1 String
-  addressL2 String
-  city      String
-  state     String
-  country   String
-  zipCode   String
+  addressL1      String
+  addressL2      String
+  city           String
+  state          String
+  country        String
+  zipCode        String
 }
 
-// NextAuth
 model User {
-  id            String          @id @default(cuid())
-  name          String?
-  email         String          @unique
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
-  slack         String?         @unique // slack user id 
-  isAdmin       Boolean         @default(false) // Kept for backward compatibility
-  role          UserRole        @default(User) // New role field for finer access control
-  hackatimeId   String?         @unique // hackatime user id
-  status        UserStatus      @default(Unknown) // User verification status
-  // Optional for WebAuthn support
-  Authenticator Authenticator[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // shipwrecked project fields
-  projects Project[]
-  reviews  Review[] // Relation to reviews created by this user
-
-  // Upvotes given by this user
-  upvotes Upvote[]
-
-  // Audit log relations
-  targetAuditLogs AuditLog[] @relation("AuditLogTargetUser") // Logs where this user is the target
-  actorAuditLogs  AuditLog[] @relation("AuditLogActorUser") // Logs where this user is the actor
-
-  // Chat messages sent by this user  
-  chatMessages ChatMessage[]
+  id              String          @id @default(cuid())
+  name            String?
+  email           String          @unique
+  emailVerified   DateTime?
+  identityToken   String?
+  image           String?
+  slack           String?         @unique
+  isAdmin         Boolean         @default(false)
+  role            UserRole        @default(User)
+  hackatimeId     String?         @unique
+  status          UserStatus      @default(Unknown)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  accounts        Account[]
+  actorAuditLogs  AuditLog[]      @relation("AuditLogActorUser")
+  targetAuditLogs AuditLog[]      @relation("AuditLogTargetUser")
+  Authenticator   Authenticator[]
+  chatMessages    ChatMessage[]
+  projects        Project[]
+  reviews         Review[]
+  sessions        Session[]
+  upvotes         Upvote[]
 }
 
 model Account {
@@ -111,11 +60,9 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([provider, providerAccountId])
 }
@@ -125,10 +72,9 @@ model Session {
   sessionToken String   @unique
   userId       String
   expires      DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 model VerificationToken {
@@ -139,7 +85,6 @@ model VerificationToken {
   @@id([identifier, token])
 }
 
-// Optional for WebAuthn support
 model Authenticator {
   credentialID         String  @unique
   userId               String
@@ -149,91 +94,60 @@ model Authenticator {
   credentialDeviceType String
   credentialBackedUp   Boolean
   transports           String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user                 User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, credentialID])
 }
 
 model Project {
-  projectID   String  @unique
-  name        String
-  description String
-  codeUrl     String
-  playableUrl String
-  screenshot  String
-  submitted   Boolean @default(false)
-
-  viral     Boolean @default(false)
-  shipped   Boolean @default(false)
-  in_review Boolean @default(false)
-  
-  // Chat feature flag
-  chat_enabled Boolean @default(false)
-
-  // user relation
-  userId String
-  user   User   @relation(fields: [userId], references: [id])
-
-  // Project reviews
-  reviews Review[]
-
-  // Upvotes received by this project
-  upvotes Upvote[]
-
-  // Audit logs related to this project
-  auditLogs AuditLog[]
-
-  // Hackatime project links
+  projectID      String                 @unique
+  name           String
+  description    String
+  codeUrl        String
+  playableUrl    String
+  screenshot     String
+  submitted      Boolean                @default(false)
+  viral          Boolean                @default(false)
+  shipped        Boolean                @default(false)
+  in_review      Boolean                @default(false)
+  userId         String
+  chat_enabled   Boolean                @default(false)
+  auditLogs      AuditLog[]
+  chatRooms      ChatRoom[]
   hackatimeLinks HackatimeProjectLink[]
-  
-  // Chat rooms for this project
-  chatRooms ChatRoom[]
+  user           User                   @relation(fields: [userId], references: [id])
+  reviews        Review[]
+  upvotes        Upvote[]
 
   @@id([projectID, userId])
 }
 
 model Review {
-  id        String   @id @default(cuid())
-  comment   String
-  createdAt DateTime @default(now())
-
-  // Review request type
-  reviewType ReviewRequestType? // Nullable for backward compatibility with existing reviews
-
-  // Relation to the project being reviewed
-  projectID String
-  project   Project @relation(fields: [projectID], references: [projectID])
-
-  // Relation to the user who created the review
+  id         String             @id @default(cuid())
+  comment    String
+  createdAt  DateTime           @default(now())
+  reviewType ReviewRequestType?
+  projectID  String
   reviewerId String
-  reviewer   User   @relation(fields: [reviewerId], references: [id])
+  project    Project            @relation(fields: [projectID], references: [projectID])
+  reviewer   User               @relation(fields: [reviewerId], references: [id])
 
   @@index([projectID])
   @@index([reviewerId])
 }
 
-// Audit log for tracking system events
 model AuditLog {
-  id          String            @id @default(cuid())
-  eventType   AuditLogEventType
-  description String // Human-readable description of what happened
-  createdAt   DateTime          @default(now())
-
-  // Additional data stored as JSON (optional)
-  metadata Json? // For storing any relevant data about the event
-
-  // Target user (the hack clubber affected by the action)
+  id           String            @id @default(cuid())
+  eventType    AuditLogEventType
+  description  String
+  createdAt    DateTime          @default(now())
+  metadata     Json?
   targetUserId String
-  targetUser   User   @relation("AuditLogTargetUser", fields: [targetUserId], references: [id])
-
-  // Actor user (admin or reviewer who performed the action) - optional
-  actorUserId String?
-  actorUser   User?   @relation("AuditLogActorUser", fields: [actorUserId], references: [id])
-
-  // Related project (if applicable) - optional
-  projectId String?
-  project   Project? @relation(fields: [projectId], references: [projectID])
+  actorUserId  String?
+  projectId    String?
+  actorUser    User?             @relation("AuditLogActorUser", fields: [actorUserId], references: [id])
+  project      Project?          @relation(fields: [projectId], references: [projectID])
+  targetUser   User              @relation("AuditLogTargetUser", fields: [targetUserId], references: [id])
 
   @@index([eventType])
   @@index([createdAt])
@@ -242,56 +156,40 @@ model AuditLog {
   @@index([projectId])
 }
 
-// New model to link Bay projects with Hackatime projects
 model HackatimeProjectLink {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  
-  // Link to the Bay project
-  projectID String
-  project   Project @relation(fields: [projectID], references: [projectID], onDelete: Cascade)
-  
-  // Hackatime project details
-  hackatimeName String  // The name of the Hackatime project
-  rawHours      Float   // Raw hours from Hackatime for this specific project
-  hoursOverride Float?  // Override for the Hackatime reported hours
+  id            String   @id @default(cuid())
+  createdAt     DateTime @default(now())
+  projectID     String
+  hackatimeName String
+  rawHours      Float
+  hoursOverride Float?
+  project       Project  @relation(fields: [projectID], references: [projectID], onDelete: Cascade)
 
   @@unique([projectID, hackatimeName])
   @@index([projectID])
 }
 
-// Upvote model to track user upvotes for projects
 model Upvote {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
-
-  // Relation to the user who upvoted
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  // Relation to the project being upvoted
+  userId    String
   projectID String
-  project   Project @relation(fields: [projectID], references: [projectID], onDelete: Cascade)
+  project   Project  @relation(fields: [projectID], references: [projectID], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // Ensure one upvote per user per project
   @@unique([userId, projectID])
   @@index([projectID])
   @@index([userId])
 }
 
-// Chat models for realtime discussion
 model ChatRoom {
-  id        String   @id @default(cuid())
-  name      String   @default("General Discussion")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relation to project
+  id        String        @id @default(cuid())
+  name      String        @default("General Discussion")
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
   projectID String
-  project   Project @relation(fields: [projectID], references: [projectID], onDelete: Cascade)
-
-  // Chat messages
-  messages ChatMessage[]
+  messages  ChatMessage[]
+  project   Project       @relation(fields: [projectID], references: [projectID], onDelete: Cascade)
 
   @@index([projectID])
 }
@@ -301,16 +199,46 @@ model ChatMessage {
   content   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  // Relation to user who sent the message
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  // Relation to chat room
-  roomId String
-  room   ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  userId    String
+  roomId    String
+  room      ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([roomId])
   @@index([userId])
   @@index([createdAt])
+}
+
+enum UserStatus {
+  Unknown
+  L1
+  L2
+  FraudSuspect
+}
+
+enum UserRole {
+  User
+  Reviewer
+  Admin
+}
+
+enum ReviewRequestType {
+  ShippedApproval
+  ViralApproval
+  HoursApproval
+  Other
+}
+
+enum AuditLogEventType {
+  ProjectCreated
+  ProjectSubmittedForReview
+  ProjectMarkedShipped
+  ProjectMarkedViral
+  ProjectReviewCompleted
+  UserRoleChanged
+  UserVerified
+  UserCreated
+  ProjectDeleted
+  SlackConnected
+  OtherEvent
 }

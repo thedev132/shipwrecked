@@ -27,6 +27,7 @@ import ProjectReviewRequest from '@/components/common/ProjectReviewRequest';
 import ImageWithFallback from '@/components/common/ImageWithFallback';
 import CompleteReviewForm from '@/components/common/CompleteReviewForm';
 import ProjectMetadataWarning from '@/components/common/ProjectMetadataWarning';
+import IDPopup from '@/app/components/identity/IDPopup';
 
 
 // Force dynamic rendering to prevent prerendering errors during build
@@ -634,7 +635,28 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
   const [projectToDelete, setProjectToDelete] = useState<ProjectType | null>(null);
   const isMobile = useIsMobile();
   const { isReviewMode } = useReviewMode();
-  
+  const [showIdentityPopup, setShowIdentityPopup] = useState(false);
+
+  useEffect(() => {
+    const getIdentity = async () => {
+      const response = await fetch('/api/identity/me');
+      const data = await response.json();
+      if (data?.verification_status === 'verified' || data?.verification_status === 'pending') {
+        setShowIdentityPopup(false);
+      } else {
+        setShowIdentityPopup(true);
+      }
+    }
+
+    if (status !== 'authenticated') return;
+    const lastShown = localStorage.getItem('identityPopupLastShown');
+    const now = Date.now();
+    if (!lastShown || now - parseInt(lastShown, 10) > 24 * 60 * 60 * 1000) {
+      getIdentity();
+      localStorage.setItem('identityPopupLastShown', now.toString());
+    }
+  }, [status]);
+
   // Check if user is admin
   const isAdmin = session?.user?.role === 'Admin' || session?.user?.isAdmin === true;
 
@@ -1091,6 +1113,7 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
 
   return (
     <div className={styles.container}>
+      {showIdentityPopup && <IDPopup />}
       {/* Impersonation Banner */}
       {impersonationData && (
         <div className="bg-yellow-100 border-l-4 border-yellow-500 p-4 mb-4">

@@ -80,11 +80,19 @@ function AccessDeniedHaiku() {
 }
 
 // Type definitions for review page
+enum UserStatus {
+  Unknown = "Unknown",
+  L1 = "L1", 
+  L2 = "L2",
+  FraudSuspect = "FraudSuspect"
+}
+
 interface User {
   id: string;
   name: string | null;
   email: string | null;
   image: string | null;
+  status: UserStatus;
 }
 
 interface Review {
@@ -411,18 +419,30 @@ function ReviewPage() {
   
   // Apply filter when projects or filter changes
   useEffect(() => {
-    if (activeFilter) {
+    if (activeFilter === "FraudSuspect") {
       setFilteredProjects(projects.filter(project => 
-        project.latestReview?.reviewType === activeFilter &&
+        project.user.status === UserStatus.FraudSuspect &&
         (project.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
         project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (project.user.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()))
       ));
+      return;
+    }
+    if (activeFilter) {
+      setFilteredProjects(projects.filter(project => 
+        project.latestReview?.reviewType === activeFilter &&
+        project.user.status !== UserStatus.FraudSuspect &&
+        (project.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (project.user.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()))
+      ));
+      
     } else {
       setFilteredProjects(projects.filter(project => 
-        project.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        project.user.status !== UserStatus.FraudSuspect &&
+        (project.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
         project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (project.user.name?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+        (project.user.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()))
       ));
     }
   }, [projects, activeFilter, searchTerm]);
@@ -562,6 +582,16 @@ function ReviewPage() {
                 }`}
               >
                 Other Requests
+              </button>
+              <button
+                onClick={() => setActiveFilter('FraudSuspect')}
+                className={`px-3 py-1.5 text-sm font-medium rounded-full transition-colors ${
+                  activeFilter === 'FraudSuspect'
+                    ? 'bg-red-600 text-white'
+                    : 'bg-red-100 text-red-700 hover:bg-red-200'
+                }`}
+              >
+                Banned Users
               </button>
             </div>
           </div>

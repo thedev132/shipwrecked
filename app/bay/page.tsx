@@ -209,9 +209,8 @@ export function calculateProgressMetrics(projects: ProjectType[]): ProgressMetri
     // Cap hours per project at 15
     let cappedHours = Math.min(hours, 15);
     
-    // If the project is viral, it counts as 15 hours
     if (project?.viral === true) {
-      viralHours += 15;
+      viralHours += cappedHours;
     } 
     // If it's shipped but not viral
     else if (project?.shipped === true) {
@@ -264,10 +263,12 @@ export function calculateProgressMetrics(projects: ProjectType[]): ProgressMetri
 // Project Detail Component
 function ProjectDetail({ 
   project, 
+  projects,
   onEdit,
   setProjects
 }: { 
   project: ProjectType, 
+  projects: ProjectType[],
   onEdit: (project?: any) => void,
   setProjects: React.Dispatch<React.SetStateAction<ProjectType[]>>
 }): ReactElement {
@@ -298,17 +299,29 @@ function ProjectDetail({
   const getProjectHours = () => {
     // Safety check for null project
     if (!project) return 0;
-    
-    // If viral, it's 15 hours (25% toward the 60-hour goal)
-    if (projectFlags?.viral === true) {
-      return 15;
-    }
-    
+
+  const allProjectsWithHours = projects
+    .map(project => ({
+      project,
+      hours: getProjectHackatimeHours(project)
+    }))
+    .sort((a, b) => b.hours - a.hours);
+
+  // Get top 4 projects for island percentage calculation
+  const top4Projects = allProjectsWithHours.slice(0, 4);
+
+  if (!top4Projects.find(x=>x.project.projectID === project.projectID))
+	  return 0;
+
     // Get hours from project properties using the helper function
     const rawHours = getProjectHackatimeHours(project);
     
     // Cap hours per project at 15
     let cappedHours = Math.min(rawHours, 15);
+    
+    if (projectFlags?.viral === true) {
+      return cappedHours;
+    }
     
     // If the project is not shipped, cap it at 14.75 hours
     if (projectFlags?.shipped !== true && cappedHours > 14.75) {
@@ -970,16 +983,16 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
   // Update total hours whenever projects or projectHours changes
   useEffect(() => {
     const total = projects.reduce((sum, project) => {
-      // If project is viral, it automatically counts as 15 hours
-      if (project.viral) {
-        return sum + 15;
-      }
-      
       // Get hours using our helper function
       let hours = getProjectHackatimeHours(project);
       
       // Cap hours per project at 15
       let cappedHours = Math.min(hours, 15);
+      
+      // If project is viral, it automatically counts as 15 hours
+      if (project.viral) {
+        return sum + cappedHours;
+      }
       
       // If the project is not shipped, cap it at 14.75 hours
       if (!project.shipped && cappedHours > 14.75) {
@@ -1357,6 +1370,30 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
                     >
                       {""}
                     </FormInput>
+                    <FormInput
+                      fieldName='shipped'
+                      state={projectEditState}
+                      placeholder='shipped'
+                      defaultValue={initialEditState.shipped?.toString() || 'false'}
+                    >
+                      {""}
+                    </FormInput>
+                    <FormInput
+                      fieldName='viral'
+                      state={projectEditState}
+                      placeholder='viral'
+                      defaultValue={initialEditState.viral?.toString() || 'false'}
+                    >
+                      {""}
+                    </FormInput>
+                    <FormInput
+                      fieldName='in_review'
+                      state={projectEditState}
+                      placeholder='in_review'
+                      defaultValue={initialEditState.in_review?.toString() || 'false'}
+                    >
+                      {""}
+                    </FormInput>
                   </span>
                   <div className="mb-5 bg-gray-50 p-4 rounded-lg">
                     <FormInput
@@ -1503,6 +1540,7 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
                 return (
                   <ProjectDetail 
                     project={projectWithProps}
+					projects={projects}
                     onEdit={impersonationData ? () => {
                       toast.error("Cannot edit projects while impersonating users");
                     } : (project) => {
@@ -1578,12 +1616,20 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
               if (!selectedProject) {
                 return 0;
               }
-              
-              // If viral, it's 15 hours
-              if (selectedProject?.viral === true) {
-                return 15;
-              }
-              
+
+  const allProjectsWithHours = projects
+    .map(project => ({
+      project,
+      hours: getProjectHackatimeHours(project)
+    }))
+    .sort((a, b) => b.hours - a.hours);
+
+  // Get top 4 projects for island percentage calculation
+  const top4Projects = allProjectsWithHours.slice(0, 4);
+
+  if (!top4Projects.find(x=>x.project.projectID === selectedProject.projectID))
+	  return 0;
+
               // Use hoursOverride if available, otherwise use raw hours
               const hours = typeof selectedProject?.hoursOverride === 'number' && selectedProject.hoursOverride !== null
                 ? selectedProject.hoursOverride
@@ -1591,6 +1637,10 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
               
               // Cap hours per project at 15
               let cappedHours = Math.min(hours, 15);
+              
+              if (selectedProject?.viral === true) {
+                return cappedHours;
+              }
               
               // If not shipped, cap at 14.75 hours
               if (selectedProject?.shipped !== true && cappedHours > 14.75) {
@@ -2093,6 +2143,30 @@ function ProjectModal(props: ProjectModalProps): ReactElement {
               state={props.state}
               placeholder='projectID'
               {...(props.projectID && { defaultValue: props.projectID})}
+            >
+              {""}
+            </FormInput>
+            <FormInput
+              fieldName='shipped'
+              state={props.state}
+              placeholder='shipped'
+              defaultValue={props.shipped?.toString() || 'false'}
+            >
+              {""}
+            </FormInput>
+            <FormInput
+              fieldName='viral'
+              state={props.state}
+              placeholder='viral'
+              defaultValue={props.viral?.toString() || 'false'}
+            >
+              {""}
+            </FormInput>
+            <FormInput
+              fieldName='in_review'
+              state={props.state}
+              placeholder='in_review'
+              defaultValue={props.in_review?.toString() || 'false'}
             >
               {""}
             </FormInput>
